@@ -1,0 +1,44 @@
+=======================================================
+    glmark2 2014.03
+=======================================================
+    OpenGL Information
+    GL_VENDOR:     VMware, Inc.
+    GL_RENDERER:   softpipe
+    GL_VERSION:    OpenGL ES 3.0 Mesa 17.3.2
+=======================================================
+[build] use-vbo=false: FPS: 7 FrameTime: 142.857 ms
+[build] use-vbo=true: FPS: 12 FrameTime: 83.333 ms
+[texture] texture-filter=nearest: FPS: 7 FrameTime: 142.857 ms
+[texture] texture-filter=linear: FPS: 5 FrameTime: 200.000 ms
+[texture] texture-filter=mipmap: FPS: 1 FrameTime: 1000.000 ms
+[shading] shading=gouraud: FPS: 7 FrameTime: 142.857 ms
+[shading] shading=blinn-phong-inf: FPS: 3 FrameTime: 333.333 ms
+[shading] shading=phong: FPS: 2 FrameTime: 500.000 ms
+[shading] shading=cel: FPS: 1 FrameTime: 1000.000 ms
+[bump] bump-render=high-poly: FPS: 2 FrameTime: 500.000 ms
+[bump] bump-render=normals: FPS: 4 FrameTime: 250.000 ms
+[bump] bump-render=height: FPS: 3 FrameTime: 333.333 ms
+[effect2d] kernel=0,1,0;1,-4,1;0,1,0;: FPS: 0 FrameTime: inf ms
+[effect2d] kernel=1,1,1,1,1;1,1,1,1,1;1,1,1,1,1;: FPS: 0 FrameTime: inf ms
+[pulsar] light=false:quads=5:texture=false: FPS: 10 FrameTime: 100.000 ms
+[desktop] blur-radius=5:effect=blur:passes=1:separable=true:windows=4: FPS: 0 FrameTime: inf ms
+[desktop] effect=shadow:windows=4: FPS: 1 FrameTime: 1000.000 ms
+[buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=map: FPS: 2 FrameTime: 500.000 ms
+[buffer] columns=200:interleave=false:update-dispersion=0.9:update-fraction=0.5:update-method=subdata: FPS: 2 FrameTime: 500.000 ms
+[buffer] columns=200:interleave=true:update-dispersion=0.9:update-fraction=0.5:update-method=map: FPS: 2 FrameTime: 500.000 ms
+[ideas] speed=duration: FPS: 6 FrameTime: 166.667 ms
+[jellyfish] <default>: FPS: 0 FrameTime: inf ms
+[terrain] <default>: FPS: 0 FrameTime: inf ms
+[shadow] <default>: FPS: 2 FrameTime: 500.000 ms
+[refract] <default>: FPS: 0 FrameTime: inf ms
+[conditionals] fragment-steps=0:vertex-steps=0: FPS: 5 FrameTime: 200.000 ms
+[conditionals] fragment-steps=5:vertex-steps=0: FPS: 2 FrameTime: 500.000 ms
+[conditionals] fragment-steps=0:vertex-steps=5: FPS: 5 FrameTime: 200.000 ms
+[function] fragment-complexity=low:fragment-steps=5: FPS: 3 FrameTime: 333.333 ms
+[function] fragment-complexity=medium:fragment-steps=5: FPS: 1 FrameTime: 1000.000 ms
+[loop] fragment-loop=false:fragment-steps=5:vertex-steps=5: FPS: 3 FrameTime: 333.333 ms
+[loop] fragment-steps=5:fragment-uniform=false:vertex-steps=5: FPS: 3 FrameTime: 333.333 ms
+[loop] fragment-steps=5:fragment-uniform=true:vertex-steps=5: FPS: 2 FrameTime: 500.000 ms
+=======================================================
+                                  glmark2 Score: 3 
+=======================================================
