@@ -1,0 +1,72 @@
+\documentclass[12pt,a4paper,oneside]{article}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{multicol}
+\usepackage{textcomp}
+\graphicspath{{img/}}
+
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\begin{titlepage} % Suppresses displaying the page number on the title page and the subsequent page counts as page 1
+	\newcommand{\HRule}{\rule{\linewidth}{0.5mm}} % Defines a new command for horizontal lines, change thickness here
+
+	\center % Centre everything on the page
+
+	\textsc{\LARGE ESIEE Paris}\\[1.5cm] % Main heading such as the name of your university/college
+
+	\textsc{\Large International Master of Computer Science}\\[0.5cm] % Major heading such as course name
+
+	\textsc{\Large E5 Internship Report}\\[0.5cm] % Minor heading such as course title
+
+	\begin{figure}[H]
+	\centering
+	  \includegraphics[scale=2]{img/logo_esiee.png}
+	  \label{fig:logo_esiee}
+	\end{figure}
+
+	\textsc{\large LLVM/Clang integration to Buildroot}\\[1cm]
+
+	\textsc{\large Company: Smile}\\[1cm]
+
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushleft}
+			\large
+			\textit{Author}\\
+			Valent\'{i}n Korenblit % Your name
+		\end{flushleft}
+	\end{minipage}
+	~
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushright}
+			\large
+			\textit{Supervisor}\\
+			Dr. Yasmina Abdedda\"{i}m % Supervisor's name
+		\end{flushright}
+	\end{minipage}
+
+	\vfill\vfill\vfill % Position the date 3/4 down the remaining page
+
+	{\large\today} % Date, change the \today to a set date if you want to be precise
+
+	\vfill % Push the date up 1/4 of the remaining page
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+
+
+
+\end{document}
