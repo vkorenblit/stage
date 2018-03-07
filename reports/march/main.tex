@@ -80,7 +80,7 @@ Things to be considered when cross-compiling LLVM:
   \item Host triple (native code generation for the target): {\fontfamily{qcr}\selectfont
   -DLLVM\_HOST\_TRIPLE}
   \item Target architecture: {\fontfamily{qcr}\selectfont
-  -DLLVM\_HOST\_TRIPLE}
+  -DLLVM\_TARGET\_ARCH}
   \item Targets to build: {\fontfamily{qcr}\selectfont
   -DLLVM\_TARGETS\_TO\_BUILD}
 \end{itemize}
@@ -147,7 +147,7 @@ the LLVM code optimizer improves the performance for rendering:
 
 \begin{table}[h!]
   \begin{center}
-    \caption{Results of GLMark2 and GLMark2-es2 benchmarks for x86_64}
+    \caption{Results of GLMark2 and GLMark2-es2 benchmarks for x86\_64}
     \label{tab:glmark2_x86}
     \begin{tabular}{ c |c c }
     & {GLMark2} & {GLMark2-es2} \\
