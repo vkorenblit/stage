@@ -7,7 +7,10 @@
 \usepackage{color}
 \usepackage{caption}
 \usepackage{float}
+\usepackage[nodayofweek]{datetime}
 
+\usdate\newdate{date}{02}{03}{2018}
+\date{\displaydate{date}}
 
 \begin{document}
 \author{Valent\'{i}n Korenblit}
@@ -17,7 +20,7 @@
 
 \section*{Summary}
 The main purpose of the internship is to integrate LLVM/Clang packages to Buildroot.
-This would activate new functionalities such as enabling llvmpipe software rast
+This will activate new functionalities such as enabling llvmpipe software rast
 erizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
 support for existing packages already present in Buildroot (OpenCV, Mesa3D). Once
 LLVM is present on the system, new packages that make use of this infrastructure
@@ -54,9 +57,9 @@ into these 3 patches:
 
 It must be considered that with respect to the RFC series,
 \footnote{http://lists.busybox.net/pipermail/buildroot/2017-July/196163.html}
-AMDGPU target support was removed and it will be added once it can be tested. Currently,
-the supported targets are X86, ARM and AArch64, and llvm.mk ensures that only
-the necessary targets are built.
+AMDGPU target support was removed and it will be added once it can be tested.
+Currently, the supported targets are X86, ARM and AArch64, and llvm.mk ensures
+that only the necessary targets are built.
 
 \subsection*{Considerations}
 
@@ -96,7 +99,6 @@ prints the compiler flags, linker flags and object libraries needed to link
 against LLVM.
 
 \subsubsection*{Mesa3D}
-
 Currently, Mesa3D is linking against LLVM libraries statically. When setting the
 option {\fontfamily{qcr}\selectfont MESA3D\_CONF\_OPTS += --enable-llvm-shared-libs},
 the build fails because it cannot find LLVM libraries. Apparently, the problem is
@@ -194,9 +196,9 @@ obtained:\\\\
     & {GLMark2-es2} \\
     \hline
     RPi2 softpipe & 0\\
-    Rpi2 llvmpipe & 0\\
-    Rpi3 (32-bit) softpipe & 0\\
-    Rpi3 (32-bit) llvmpipe & 11\\
+    RPi2 llvmpipe & 0\\
+    RPi3 (32-bit) softpipe & 0\\
+    RPi3 (32-bit) llvmpipe & 11\\
     \end{tabular}
   \end{center}
 \end{table}
@@ -216,8 +218,8 @@ respect to the 32-bit version:
     \begin{tabular}{c|c}
     & {GLMark2-es2} \\
     \hline
-    Rpi3 (64-bit) softpipe & 0\\
-    Rpi3 (64-bit) llvmpipe & 13\\
+    RPi3 (64-bit) softpipe & 0\\
+    RPi3 (64-bit) llvmpipe & 13\\
     \end{tabular}
   \end{center}
 \end{table}
@@ -231,7 +233,7 @@ respect to the 32-bit version:
     VC4 device driver.
 
     \item To load VC4 device driver, assuming that the {\fontfamily{qcr}\selectfont
-    \boot} partition has the {\fontfamily{qcr}\selectfont overlays/} directory with
+    /boot} partition has the {\fontfamily{qcr}\selectfont overlays/} directory with
     its dtbo files inside, the next options must be configured:
     \begin{itemize}
       \item Add cma=256M to cmdline.txt
@@ -275,5 +277,40 @@ respect to the 32-bit version:
     \item Add support for more targets.
   \end{itemize}
 \end{itemize}
+
+\newpage
+\section*{Update - 9 March 2018}
+
+\subsection*{Full host-llvm}
+After having investigated why Mesa3D was not able to link dinamically against
+libLLVM.so, it was found that the bug in llvm-config presented in Section Mesa 3D
+occurs when the option LLVM\_LINK\_LLVM\_DYLIB is not enabled. The purpose of this
+option is to generate a single shared library (libLLVM.so) and link LLVM tools
+dynamically with it.\\\\
+A priori, as llvm-tblgen and llvm-config are the only necessary tools for the host
+(llvm-tblgen to cross-compile LLVM for the target and llvm-config to provide linking
+options to packages that link against LLVM libraries), it was decided to do a
+minimal llvm-host installation. However, to get the correct output from llvm-config
+it must be linked with libLLVM.so (host-variant), so this library must be built too.
+Because of this, the first approach changed and the first patch of the series
+(package/llvm: new host package) will provide a full installation of LLVM (tools
+and libraries). This approach will avoid conflicts for packages linking with
+LLVM libraries and will also facilitate the integration of Clang front-end, which
+will be provided in a future patch series.
+
+\subsection*{PATCH v3}
+The PATCH v3 series sent to the Buildroot mailint list on the $9^{th}$ March
+contains the following 6 commits:
+\begin{itemize}
+  \item {[PATCH v3 1/6]} package/llvm: new host package
+  \item {[PATCH v3 2/6]} package/llvm: enable target variant
+  \item {[PATCH v3 3/6]} package/llvm: enable AMDGPU
+  \item {[PATCH v3 4/6]} package/mesa3d: enable llvm support
+  \item {[PATCH v3 5/6]} package/llvm: enable ARM
+  \item {[PATCH v3 6/6]} package/llvm: enable AArch64
+\end{itemize}
+
+
+
 
 \end{document}
