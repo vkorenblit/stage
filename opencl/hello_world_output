@@ -1,0 +1,14 @@
+./hello_world: /usr/lib64/libOpenCL.so.1: no version information available (required by ./hello_world)
+There are 1 platforms.
+There are 2 GPU devices.
+clCreateContext() succeeded.
+clCreateCommandQueue() succeeded.
+clCreateProgramWithSource() suceeded.
+clBuildProgram() suceeded.
+clCreateKernel() suceeded.
+clCreateBuffer() succeeded.
+clSetKernelArg() succeeded.
+clEnqueueNDRangeKernel() suceeded.
+clFinish() succeeded.
+clEnqueueReadBuffer() suceeded.
+pi = 3.141590
