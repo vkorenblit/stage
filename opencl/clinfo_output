@@ -1,7 +1,7 @@
 Number of platforms                               1
   Platform Name                                   Clover
   Platform Vendor                                 Mesa
-  Platform Version                                OpenCL 1.1 Mesa 17.3.6
+  Platform Version                                OpenCL 1.1 Mesa 17.3.7
   Platform Profile                                FULL_PROFILE
   Platform Extensions                             cl_khr_icd
   Platform Extensions function suffix             MESA
@@ -11,8 +11,8 @@ Number of devices                                 2
   Device Name                                     AMD SUMO (DRM 2.50.0 / 4.14.0, LLVM 5.0.1)
   Device Vendor                                   AMD
   Device Vendor ID                                0x1002
-  Device Version                                  OpenCL 1.1 Mesa 17.3.6
-  Driver Version                                  17.3.6
+  Device Version                                  OpenCL 1.1 Mesa 17.3.7
+  Driver Version                                  17.3.7
   Device OpenCL C Version                         OpenCL C 1.1 
   Device Type                                     GPU
   Device Profile                                  FULL_PROFILE
@@ -23,9 +23,7 @@ Number of devices                                 2
   Max work item dimensions                        3
   Max work item sizes                             256x256x256
   Max work group size                             256
-=== CL_PROGRAM_BUILD_LOG ===
-<built-in>:1:10: fatal error: 'clc/clc.h' file not found
-  Preferred work group size multiple              <getWGsizes:594: build program : error -11>
+  Preferred work group size multiple              64
   Preferred / native vector sizes                 
     char                                                16 / 16      
     short                                                8 / 8       
@@ -71,8 +69,8 @@ Number of devices                                 2
   Device Name                                     AMD CAICOS (DRM 2.50.0 / 4.14.0, LLVM 5.0.1)
   Device Vendor                                   AMD
   Device Vendor ID                                0x1002
-  Device Version                                  OpenCL 1.1 Mesa 17.3.6
-  Driver Version                                  17.3.6
+  Device Version                                  OpenCL 1.1 Mesa 17.3.7
+  Driver Version                                  17.3.7
   Device OpenCL C Version                         OpenCL C 1.1 
   Device Type                                     GPU
   Device Profile                                  FULL_PROFILE
@@ -83,9 +81,7 @@ Number of devices                                 2
   Max work item dimensions                        3
   Max work item sizes                             256x256x256
   Max work group size                             256
-=== CL_PROGRAM_BUILD_LOG ===
-<built-in>:1:10: fatal error: 'clc/clc.h' file not found
-  Preferred work group size multiple              <getWGsizes:594: build program : error -11>
+  Preferred work group size multiple              64
   Preferred / native vector sizes                 
     char                                                16 / 16      
     short                                                8 / 8       
