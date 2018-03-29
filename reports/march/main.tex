@@ -9,6 +9,10 @@
 \usepackage{float}
 \usepackage[nodayofweek]{datetime}
 
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\makesavenoteenv{table}
+
 \usdate\newdate{date}{02}{03}{2018}
 \date{\displaydate{date}}
 
@@ -58,7 +62,7 @@ into these 3 patches:
 It must be considered that with respect to the RFC series,
 \footnote{http://lists.busybox.net/pipermail/buildroot/2017-July/196163.html}
 AMDGPU target support was removed and it will be added once it can be tested.
-Currently, the supported targets are X86, ARM and AArch64, and llvm.mk ensures
+Currently, the supported targets are x86, ARM and AArch64, and llvm.mk ensures
 that only the necessary targets are built.
 
 \subsection*{Considerations}
@@ -299,7 +303,7 @@ LLVM libraries and will also facilitate the integration of Clang front-end, whic
 will be provided in a future patch series.
 
 \subsection*{PATCH v3}
-The PATCH v3 series sent to the Buildroot mailint list on the $9^{th}$ March
+The PATCH v3 series sent to the Buildroot mailing list on the $9^{th}$ March
 contains the following 6 commits:
 \begin{itemize}
   \item {[PATCH v3 1/6]} package/llvm: new host package
@@ -310,7 +314,125 @@ contains the following 6 commits:
   \item {[PATCH v3 6/6]} package/llvm: enable AArch64
 \end{itemize}
 
+\newpage
+\section*{Update - 29 March 2018}
 
+\subsection*{New series to enable OpenCL}
+Once LLVM was tested working on the three more common architectures (x86, ARM and
+Aarch64), the following goal was to activate OpenCL support. This task involved
+multiple steps, as there are many dependencies that need to be satisfied.\\\\
+OpenCL is an API enabling general purpose computing on GPUs (GPGPU) and other
+devices (CPUs, DSPs, FPGAs, ASICs, etc.), being well suited for certain kinds of
+parallel computations, such as hash cracking (SHA, MD5, etc.), image processing and
+simulations.\\\\
+OpenCL presents itself as a library with a simple interface:
+\begin{itemize}
+  \item Standarized API headers for C and C++
+  \item The OpenCL library (libOpenCL.so), which is a collection of types and
+  functions which all conforming implementations must provide.
+\end{itemize}
+The standard is made to provide many OpenCL platforms on one system, and each
+platform can see various devices. Each device has certain compute characteristics
+(number of compute units, optimal vector size, memory limits, etc). The OpenCL
+standard allows to load OpenCL kernels which are pieces of C99-like code that is
+JIT-compiled by the OpenCL implementations (most of them rely on LLVM to work),
+and execute these kernels on the target hardware. Functions are provided to
+compile the kernels, load them, transfer data back and forth from the target
+devices, etc.\\\\
+There are multiple open source OpenCL implementations for Linux:
+\begin{itemize}
+  \item \textbf{Clover (Computing Language over Gallium)}\\\\
+  It is a hardware independent OpenCL API implementation that works with Gallium
+  Drivers (hardware dependent userspace GPU drivers). Currently it supports OpenCL
+  1.1 and it is close to 1.2. It was merged into Mesa in 2012 and has the following
+  dependencies:
+    \begin{itemize}
+      \item \textbf{libclang}: provides an OpenCL C compiler frontend and generates LLVM IR.
+      \item \textbf{libLLVM}: LLVM IR optimization passes and hardware dependent code
+      generation.
+      \item \textbf{libclc}: implementation of the OpenCL C standard library in LLVM IR
+      bitcode providing device builtin functions. It is linked at runtime.
+    \end{itemize}
+  \item \textbf{Pocl}\\\\
+  This implementation is OpenCL 1.2 standard compliant and supports some 2.0
+  features. The major goal of this project is to improve performance portability
+  of OpenCl programs, reducing the need for target-dependent manual optimizations.
+  Pocl currently supports many CPUs (x86, ARM, MIPS, PowerPC), ASPIs(TCE/TTA),
+  NVIDIA GPUs via CUDA (experimental), HSA-supported GPUs and multiple private
+  off-tree targets. It also works with libclang and libLLVM but it has its own
+  Pocl Builtin Lib.
+  \item \textbf{Beignet}\\\\
+  It targets Intel GPUs (HD and Iris) starting with Ivy Bridge, and offering
+  OpenCL 2.0 support for Skylake, Kaby Lake and Apollo Lake.
+  \item \textbf{ROCm}\\\\
+  This implementation by AMD targets ROCm (Radeon Open Compute) compatible
+  hardware\footnote{https://github.com/RadeonOpenCompute/ROCm} (HPC/Hyperscale),
+  providing OpenCL 1.2 API with OpenCL C 2.0. It has become open source in May
+  2017.
+\end{itemize}
 
+\begin{table}[h!]
+  \begin{center}
+    \caption{Open source OpenCL implementations}
+    \label{tab:opencl_implementations}
+    \begin{tabular}{c|c|c}
+    Project & Version & Hardware \\
+    \hline
+    Clover & 1.1 & AMD\\
+    Pocl & 1.2 & CPU, NVIDIA\footnote{Needs propietary drivers}, AMD\footnote{HSA
+    compatible hardware}, TCE/TTA\\
+    Beignet & 2.0 & Intel\\
+    ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
+    \end{tabular}
+  \end{center}
+\end{table}
+
+Because of this fragmentation concerning OpenCL implementations (without taking
+into account the propietary ones) there exists a program that allows multiple
+implementations to co-exist on the same sytem: OpenCL ICD (Installable Client
+Driver). It needs the following components to work:
+\begin{itemize}
+  \item \textbf{libOpenCL.so (ICD loader)}: this library dispatches the OpenCL
+  calls to OpenCL implementations.
+  \item \textbf{/etc/OpenCL/vendors/*.icd}: these files tell the ICD loader which
+  OpenCL implementations (ICDs) are installed on the sytem. Each file has a single
+  line containing the name of the shared library containing the implementation.
+  \item \textbf{One or more OpenCL implementations (the ICDs)}: the shared libraries
+  pointed to by the .icd files.
+\end{itemize}
+
+\newpage
+\subsection*{Preparation of the new series}
+Considering that the available system for tests has an AMD Radeon Dual Graphics
+GPU (integrated HD6480G + dedicated HD7450M) and that Mesa 3D is already present
+in Buildroot, it was decided to work with the OpenCL implementation provided by
+Clover. The diagram in Fig.\ref{fig:clover} shows which are the necessary
+components to set up the desired OpenCL environment and how they interact with
+each other.
+
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.65]{img/clover.png}
+  \caption{Clover}
+  \label{fig:clover}
+\end{figure}
+
+\newpage
+\subsection*{PATCH v4}
+The PATCH v4 series sent to the Buildroot mailing list on the $29^{th}$ March
+contains the following 11 commits:
+\begin{itemize}
+  \item {[PATCH v4 1/11]} package/llvm: new host package
+  \item {[PATCH v4 2/11]} package/llvm: enable target variant
+  \item {[PATCH v4 3/11]} package/llvm: enable AMDGPU
+  \item {[PATCH v4 4/11]} package/mesa3d: enable llvm support
+  \item {[PATCH v4 5/11]} package/llvm: enable ARM
+  \item {[PATCH v4 6/11]} package/llvm: enable AArch64
+  \item {[PATCH v4 7/11]} package/clang: new host package
+  \item {[PATCH v4 8/11]} package/clang: enable target variant
+  \item {[PATCH v4 9/11]} package/libclc: new package
+  \item {[PATCH v4 10/11]} package/mesa3d: enable OpenCL support
+  \item {[PATCH v4 11/11]} package/clinfo: new package
+\end{itemize}
 
 \end{document}
