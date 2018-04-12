@@ -5,6 +5,14 @@
 \usepackage{verbatim}
 \usepackage{listings}
 \usepackage{color}
+\lstset{language=C++,
+                basicstyle=\ttfamily\footnotesize,
+                keywordstyle=\color{blue},
+                stringstyle=\color{red},
+                commentstyle=\color{green},
+                morecomment=[l][\color{magenta}]{\#}
+}
+
 \usepackage{caption}
 \usepackage{float}
 \usepackage[nodayofweek]{datetime}
@@ -413,11 +421,206 @@ each other.
 \begin{figure}[H]
 \centering
   \includegraphics[scale=0.65]{img/clover.png}
-  \caption{Clover}
+  \caption{Clover OpenCL implementation}
   \label{fig:clover}
 \end{figure}
 
+\subsubsection*{Clang for host}
+The first step was providing Clang frontend for the host, as it is necessary for
+building libclc because this library is written in OpenCL C and some functions
+are implemented directly in LLVM IR. Clang will transform .cl and .ll source
+files into LLVM IR bitcode (.bc) by calling llvm-as (the LLVM assembler).\\\\
+Regarding the Makefile for building host-clang, the path to host's llvm-config
+must be specified. This is necessary because Clang is thought to be built as a
+tool inside LLVM's tree (LLVM\_SOURCE\_TREE/tools/clang) but Buildroot manages
+packages individually, so Clang's code source cannot be downloaded inside LLVM's
+tree.\\\\
+Having Clang installed on the host is not only useful for building libclc, it
+provides an alternative to GCC, what enables the possibility of creating a new
+toolchain based on it.
+
 \newpage
+\subsubsection*{Clang for target}
+When trying to cross-compile Clang some problems were encountered, so it was
+decided to work with ARM architecture in order to make sure that a build on x86
+was successful not just because of binary compatibility. The main issues were the
+following ones:
+\begin{itemize}
+  \item \textbf{llvm-tblgen}\\\\
+  When trying to cross-compile Clang, the build broke with the following error:\\\\
+  {\fontfamily{qcr}\selectfont llvm-tblgen: cannot execute binary file: Exec
+  format error}\\\\
+  This means that llvm-tblgen from STAGING\_DIR (cross-compiled) was trying to be
+  executed on the host machine. Because of this, it was necessary to copy
+  llvm-tblgen from host to STAGING\_DIR/usr/bin. This is the same kind of problem
+  that arised with llvm-config, which was explained before.
+
+  \item \textbf{llvm-config}\\\\
+  It is necessary to specify the path to llvm-config installed in STAGING\_DIR:\\\\
+  {\fontfamily{qcr}\selectfont -DLLVM\_CONFIG:FILEPATH=\$(STAGING\_DIR)/usr/bin/llvm-config}
+
+  \item \textbf{Shared libs}\\\\
+  When Clang was built for the host, it generated multiple static libraries
+  (libclangAST.a, libclangFrontend.a, libclangLex.a, etc.) and finally a shared
+  object (libclang.so) containing all of them. However, when building for the
+  target, it generated multiple shared libraries and finally libclang.so. This
+  resulted in the following error when trying to use tools that link against
+  libOpenCL, which statically links with libclang (e.g, clinfo):\\\\
+  {\fontfamily{qcr}\selectfont
+  \$ CommandLine Error: Option 'track-memory' registered more than once!\\
+  \$ LLVM ERROR: inconsistency in registered CommandLine options
+  }\\\\
+  The solution to this was specifying explicitely to the CMake infrastructure that
+  shared libraries should not be built:\\\\
+  {\fontfamily{qcr}\selectfont CLANG\_CONF\_OPTS += -DBUILD\_SHARED\_LIBS=OFF}
+\end{itemize}
+
+\newpage
+\subsubsection*{libclc}
+
+This library provides an implementation of the library requirements of the
+OpenCL C programming language, as specified by the OpenCL 1.1 specification.
+It is designed to be portable and extensible, as it provides generic
+implementations of most library requiremnts, allowing targets to override them
+at the granularity of individual functions, using LLVM intrinsics for example.
+It currently supports AMDGCN, R600 and NVPTX targets.\\\\
+There is a particular problem with libclc: when OpenCL programs call clBuildProgram
+function\footnote{https://www.khronos.org/registry/OpenCL/sdk/2.0/docs/man/xhtml/clBuildProgram.html}
+in order to compile and link a program (generally an OpenCL kernel) from source
+during execution, they require clc headers to be located in /usr/include/clc.
+This is not possible because Buildroot does not copy /usr/include from STAGING\_DIR
+to the target as the embedded platform is not intended to store development files,
+mainly because there is no compiler installed on it. But since OpenCL works with
+libLLVM to do code generation, a place to store clc headers must be found.\\\\
+The file that adds the path to libclc headers is invocation.cpp, located at
+src/gallium/state\_trackers/clover/llvm inside Mesa's source tree:\\
+
+\begin{lstlisting}[language=C++,caption={Extract from invocation.cpp},captionpos=b]
+// Add libclc generic search path
+c.getHeaderSearchOpts().AddPath(LIBCLC_INCLUDEDIR,
+                                clang::frontend::Angled,
+                                false, false);
+// Add libclc include
+c.getPreprocessorOpts().Includes.push_back("clc/clc.h");
+\end{lstlisting}
+
+Variable LIBCLC\_INCLUDEDIR is defined in Mesa's configure.ac:\\
+
+\begin{lstlisting}[language=sh,caption={Extract from configure.ac},captionpos=b]
+LIBCLC_INCLUDEDIR=`$PKG_CONFIG --variable=includedir libclc`
+LIBCLC_LIBEXECDIR=`$PKG_CONFIG --variable=libexecdir libclc`
+\end{lstlisting}
+
+Currently, header files are being copied to /usr/include/clc once the root
+filesystem is generated, but this solution is only for testing because systems
+generated with Buildroot must work directly after being generated. The next step
+is to test if LIBCLC\_INCLUDEDIR can be overwritten by specifying another path
+instead of using pkg-config.
+
+\subsubsection*{clinfo}
+
+Clinfo is a simple command-line application that enumerates all possible (known)
+properties of the OpenCL platform and devices available on the system. It tries
+to output all possible information, including those provided by platform-specific
+extensions.\\\\
+This application is built with a simple Makefile, so when creating the package
+for Buildroot it was sufficient to call the generic-package infrastructure.\\\\
+The main purposes of this application are:
+\begin{itemize}
+  \item Verifying that the OpenCL environment is set up correctly. If clinfo
+  cannot find any platform or devices (or fails to load the OpenCL dispatcher
+  library), chances are high no other OpenCL application will run.
+  \item Verifying that the OpenCL development environment is set up correctly:
+  if clinfo fails to build, chances are high no other OpenCL application will
+  build.
+  \item Reporting the actual properties of the available device(s).
+\end{itemize}
+
+Once installed on the target, clinfo successfully found Clover and the devices
+available to work with it, providing the following output:\\
+\begin{lstlisting}[language=sh,caption={Output of clinfo},captionpos=b,keywords={}]
+Number of platforms                   1
+Platform Name                         Clover
+Platform Vendor                       Mesa
+Platform Version                      OpenCL 1.1 Mesa 17.3.7
+Platform Profile                      FULL_PROFILE
+Platform Extensions                   cl_khr_icd
+Platform Extensions function suffix   MESA
+
+Platform Name                         Clover
+Number of devices                     2
+Device Name                           AMD SUMO (DRM 2.50.0 / 4.14.0, LLVM 5.0.1)
+Device Vendor                         AMD
+Device Vend                           0x1002
+Device Version                        OpenCL 1.1 Mesa 17.3.7
+Driver Version                        17.3.7
+Device OpenCL C Version               OpenCL C 1.1
+Device Type                           GPU
+Device Profile                        FULL_PROFILE
+Device Available                      Yes
+Compiler Available                    Yes
+Max compute units                     1
+Max clock frequency                   0MHz
+Max work item dimensions              3
+Max work item sizes                   256x256x256
+Max work group size                   256
+Preferred work group size multiple    64
+\end{lstlisting}
+
+\subsubsection*{Piglit}
+
+Piglit is a collection of automated tests for OpenGL and OpenCL implementations.
+The goal of this project is to help improve the quality of open source OpenGL and
+OpenCL drivers by providing developers with a simple means to perform regression
+tests.\\\\
+Once Clover was installed on the target system, it was decided to run Piglit in
+order to verify Mesa's OpenCL implementation conformance, taking the Buildroot
+packaging from Romain Naour's series
+\footnote{http://lists.busybox.net/pipermail/buildroot/2018-February/213601.html}:
+\begin{itemize}
+  \item {[PATCH v2 1/3]} package/python-numpy: add host variant for piglit
+  \item {[PATCH v2 2/3]} package/waffle: new package
+  \item {[PATCH v2 3/3]} package/piglit: new package
+\end{itemize}
+To run the OpenCL test suite the following command must be executed:
+\begin{lstlisting}[language=sh]
+  piglit run tests/cl results/cl
+\end{lstlisting}
+The results are written to results/cl in JSON format, but they can be converted
+to HTML (Fig.\ref{fig:html_output}) by running:
+\begin{lstlisting}[language=sh]
+  piglit summary html --overwrite summary/cl results/cl
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.65]{img/html_output.png}
+  \caption{OpenCL results in HTML}
+  \label{fig:html_output}
+\end{figure}
+The results of the OpenCL test suite were the following ones:
+\begin{table}[h!]
+  \begin{center}
+    \caption{Piglit OpenCL Test Suite on AMD SUMO + AMD CAICOS}
+    \label{tab:piglit_opencl}
+    \begin{tabular}{c|c|c|c|c}
+    Total & Skip & Pass & Fail & Crash \\
+    \hline
+    704 & 94 & 541 & 60 & 9
+    \end{tabular}
+  \end{center}
+\end{table}\\
+Most of the tests that failed can be classified in the following categories:
+\begin{itemize}
+  \item Program build with optimization options for OpenCL C 1.0/1.1+
+  \item Global atomic operations (add, and, or, max, etc.) using a return variable
+  \item Floating point multiply-accumulate operations
+  \item Some builtin shuffle operations
+  \item Global memory
+  \item Image read/write 2D
+  \item Tail calls
+  \item Vector load
+\end{itemize}
+T
 \subsection*{PATCH v4}
 The PATCH v4 series sent to the Buildroot mailing list on the $29^{th}$ March
 contains the following 11 commits:
@@ -434,5 +637,8 @@ contains the following 11 commits:
   \item {[PATCH v4 10/11]} package/mesa3d: enable OpenCL support
   \item {[PATCH v4 11/11]} package/clinfo: new package
 \end{itemize}
+
+\newpage
+\section*{Update - 12 April 2018}
 
 \end{document}
