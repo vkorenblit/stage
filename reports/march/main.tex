@@ -36,10 +36,10 @@ This will activate new functionalities such as enabling llvmpipe software rast
 erizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
 support for existing packages already present in Buildroot (OpenCV, Mesa3D). Once
 LLVM is present on the system, new packages that make use of this infrastructure
-can be added to Buildroot.\\
-Once this part of the project is achieved, the next step is to create a cross-toolchain
-based on Clang to compile Buildroot componentes supported by this front-end.
-\footnote{Mainline Linux kernel and glibc do not yet compile with Clang}
+can be added to Buildroot. When this part of the project is achieved, the next step
+is to create a cross-toolchain based on Clang to compile Buildroot componentes
+supported by this front-end. \footnote{Mainline Linux kernel and glibc do not yet
+compile with Clang}
 
 \section*{State of the project}
 After some research concerning the state of the art of the LLVM project, the objectives
@@ -66,7 +66,6 @@ into these 3 patches:
   \item package/llvm: enable target variant
   \item package/mesa3d: enable llvm support
 \end{itemize}
-
 It must be considered that with respect to the RFC series,
 \footnote{http://lists.busybox.net/pipermail/buildroot/2017-July/196163.html}
 AMDGPU target support was removed and it will be added once it can be tested.
@@ -99,11 +98,9 @@ Things to be considered when cross-compiling LLVM:
   \item Targets to build: {\fontfamily{qcr}\selectfont
   -DLLVM\_TARGETS\_TO\_BUILD}
 \end{itemize}
-
 The result of the compilation will be one shared library containing all LLVM
 libraries called libLLVM.so, as {\fontfamily{qcr}\selectfont
--DLLVM\_BUILD\_LLVM\_DYLIB} is set to ON.\\
-
+-DLLVM\_BUILD\_LLVM\_DYLIB} is set to ON.\\\\
 One important step in the process is the fact of replacing llvm-config in STAGING\_DIR
 by its host variant. This is because llvm-config compiled for the target cannot
 run on the host, and this is needed to build applications that use LLVM, as it
@@ -125,24 +122,19 @@ the following outputs to this commands:
   \item {\fontfamily{qcr}\selectfont./llvm-config --libnames\\
         libLLVMLTO.a libLLVMPasses.a libLLVMObjCARCOpts.a...}
 \end{itemize}
-
 Even if llvm-config returns the correct lib directory, it assumes it has to use
 LLVM static libraries, and as the configure script from Mesa3D calls llvm-config
 --link-shared --libs (in case --enable-shared-libs is activated) the build
 will fail. Mesa's configure script clearly states that llvm-config may not give
 the correct output when LLVM is build as a single shared library.
 
-
 \subsection*{Achievements}
-
 At this date, llvmpipe was successfully tested in the following systems:
-
 \begin{itemize}
   \item x86\_64
   \item ARM
   \item AArch64
 \end{itemize}
-
 \subsubsection*{x86\_64}
 The tests for x86\_64 were done using an AMD A4-3300M microprocessor. The built
 system uses a Linux kernel 4.9, X window system and works correctly with OpenGL.
@@ -154,7 +146,6 @@ llvmpipe with respect to softpipe.
   \caption{OpenGL specs}
   \label{fig:llvmpipe-glspecs}
 \end{figure}
-
 Some benchmarks were run to compare llvmpipe against the classic softpipe software
 rasterizer and the AMD Radeon HD6480. Table \ref{tab:glmark2_x86} shows how much
 the LLVM code optimizer improves the performance for rendering:
@@ -191,7 +182,6 @@ defconfig was selected.
     \end{tabular}
   \end{center}
 \end{table}
-
 Raspberry supports only OpenGL ES, so only GLMark2-es2 could be tested. When
 trying to execute {\fontfamily{qcr}\selectfont glmark2} the following errors are
 obtained:\\\\
@@ -214,7 +204,6 @@ obtained:\\\\
     \end{tabular}
   \end{center}
 \end{table}
-
 Table \ref{tab:glmark2_ARM} shows an improvement in rendering when LLVM is used,
 and also the higher computing power of the Cortex-A53 microprocessor.
 
@@ -222,7 +211,6 @@ and also the higher computing power of the Cortex-A53 microprocessor.
 Buildroot offers a defconfig to install a 64-bit system on the Raspberry Pi 3
 (raspberrypi3\_64\_defconfig). There is a little improvement in rendering with
 respect to the 32-bit version:
-
 \begin{table}[h!]
   \begin{center}
     \caption{Results of GLMark2-es2 for AArch64}
@@ -235,7 +223,6 @@ respect to the 32-bit version:
     \end{tabular}
   \end{center}
 \end{table}
-
 \subsection*{Considerations}
 \begin{itemize}
     \item By default, the defconfigs for Raspberry Pi present in Buildroot have
@@ -394,7 +381,6 @@ There are multiple open source OpenCL implementations for Linux:
     \end{tabular}
   \end{center}
 \end{table}
-
 Because of this fragmentation concerning OpenCL implementations (without taking
 into account the propietary ones) there exists a program that allows multiple
 implementations to co-exist on the same sytem: OpenCL ICD (Installable Client
@@ -475,9 +461,7 @@ following ones:
   {\fontfamily{qcr}\selectfont CLANG\_CONF\_OPTS += -DBUILD\_SHARED\_LIBS=OFF}
 \end{itemize}
 
-\newpage
 \subsubsection*{libclc}
-
 This library provides an implementation of the library requirements of the
 OpenCL C programming language, as specified by the OpenCL 1.1 specification.
 It is designed to be portable and extensible, as it provides generic
@@ -518,14 +502,13 @@ is to test if LIBCLC\_INCLUDEDIR can be overwritten by specifying another path
 instead of using pkg-config.
 
 \subsubsection*{clinfo}
-
 Clinfo is a simple command-line application that enumerates all possible (known)
 properties of the OpenCL platform and devices available on the system. It tries
 to output all possible information, including those provided by platform-specific
 extensions.\\\\
 This application is built with a simple Makefile, so when creating the package
-for Buildroot it was sufficient to call the generic-package infrastructure.\\\\
-The main purposes of this application are:
+for Buildroot it was sufficient to call the generic-package infrastructure. The
+main purposes of this application are:
 \begin{itemize}
   \item Verifying that the OpenCL environment is set up correctly. If clinfo
   cannot find any platform or devices (or fails to load the OpenCL dispatcher
@@ -535,7 +518,6 @@ The main purposes of this application are:
   build.
   \item Reporting the actual properties of the available device(s).
 \end{itemize}
-
 Once installed on the target, clinfo successfully found Clover and the devices
 available to work with it, providing the following output:\\
 \begin{lstlisting}[language=sh,caption={Output of clinfo},captionpos=b,keywords={}]
@@ -566,9 +548,7 @@ Max work item sizes                   256x256x256
 Max work group size                   256
 Preferred work group size multiple    64
 \end{lstlisting}
-
 \subsubsection*{Piglit}
-
 Piglit is a collection of automated tests for OpenGL and OpenCL implementations.
 The goal of this project is to help improve the quality of open source OpenGL and
 OpenCL drivers by providing developers with a simple means to perform regression
@@ -586,8 +566,7 @@ To run the OpenCL test suite the following command must be executed:
 \begin{lstlisting}[language=sh]
   piglit run tests/cl results/cl
 \end{lstlisting}
-The results are written to results/cl in JSON format, but they can be converted
-to HTML (Fig.\ref{fig:html_output}) by running:
+The results are written in JSON format, and can be converted to HTML by running:
 \begin{lstlisting}[language=sh]
   piglit summary html --overwrite summary/cl results/cl
 \end{lstlisting}
@@ -605,7 +584,7 @@ The results of the OpenCL test suite were the following ones:
     \begin{tabular}{c|c|c|c|c}
     Total & Skip & Pass & Fail & Crash \\
     \hline
-    704 & 94 & 541 & 60 & 9
+    704 & \color{blue}{94} & \color{green}{541} & \color{red}{60} & 9
     \end{tabular}
   \end{center}
 \end{table}\\
@@ -620,7 +599,10 @@ Most of the tests that failed can be classified in the following categories:
   \item Tail calls
   \item Vector load
 \end{itemize}
-T
+Some failures are due to missing hardware support for particular operations, so
+it would be useful to run Piglit with a more recent GPU using radeonsi Gallium
+driver in order to compare the results. It would also be interesting to test
+with both GPUs which packages can benefit from OpenCL support using Clover.
 \subsection*{PATCH v4}
 The PATCH v4 series sent to the Buildroot mailing list on the $29^{th}$ March
 contains the following 11 commits:
@@ -639,6 +621,41 @@ contains the following 11 commits:
 \end{itemize}
 
 \newpage
-\section*{Update - 12 April 2018}
+\section*{Update - 13 April 2018}
+A Buildroot hackathon gathering the core developers of the project took place
+during the March 31-April 2 weekend in Paris. After an extensive review of the
+v4 series by Romain Naour and Thomas Petazzoni, the following feedback was
+received:
+\begin{itemize}
+  \item There is no need to have a visible Config.in.host option for host-llvm,
+  as it is merely needed as a build dependency of the target llvm.
+  \item Activate CCACHE, considering that Buildroot has CCACHE support and it
+  is useful considering the size of LLVM.
+  \item LLVM needs a toolchain with thread and C++ support.
+  \item Some options are already passed by the CMake package infrastructure of
+  Buildroot, so they are not necessary in llvm.mk, such as CMAKE\_INSTALL\_PREFIX
+  and -G "Unix Makefiles".
+  \item Manage LLVM\_TARGETS\_TO\_BUILD in a more extensible way to add more backends.
+  \item Support for ARM and Aarch64 architectures should go directly in the
+  first patch of the series.
+  \item Clang binaries must be removed from the target, as there are no development
+  files (headers) and other build tools.
+\end{itemize}
+After taking into account all these considerations, the next version of the series
+was prepared.
+
+\subsection*{PATCH v5}
+The PATCH v5 series sent to the Buildroot mailing list on the $4^{th}$ April
+contains the following 7 commits:
+\begin{itemize}
+  \item {[PATCH v5 1/7]} package/llvm: new package
+  \item {[PATCH v5 2/7]} package/llvm: enable AMDGPU
+  \item {[PATCH v5 3/7]} package/mesa3d: enable llvm support
+  \item {[PATCH v4 4/7]} package/clang: new package
+  \item {[PATCH v4 5/7]} package/libclc: new package
+  \item {[PATCH v4 6/7]} package/mesa3d: enable OpenCL support
+  \item {[PATCH v4 7/7]} package/clinfo: new package
+\end{itemize}
+
 
 \end{document}
