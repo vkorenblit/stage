@@ -32,14 +32,14 @@
 
 \section*{Summary}
 The main purpose of the internship is to integrate LLVM/Clang packages to Buildroot.
-This will activate new functionalities such as enabling llvmpipe software rast
-erizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
-support for existing packages already present in Buildroot (OpenCV, Mesa3D). Once
-LLVM is present on the system, new packages that make use of this infrastructure
-can be added to Buildroot. When this part of the project is achieved, the next step
-is to create a cross-toolchain based on Clang to compile Buildroot componentes
-supported by this front-end. \footnote{Mainline Linux kernel and glibc do not yet
-compile with Clang}
+This package will activate new functionalities such as enabling llvmpipe software
+rasterizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
+support for existing packages already present in Buildroot . Once LLVM is present
+on the system, new packages that make use of this infrastructure can be added to
+Buildroot. When this part of the project is achieved, the next step is to create
+a cross-toolchain based on Clang to compile Buildroot componentes supported by
+this front-end. \footnote{Mainline Linux kernel and glibc do not yet compile with
+Clang}
 
 \section*{State of the project}
 After some research concerning the state of the art of the LLVM project, the objectives
@@ -58,9 +58,8 @@ the following conclusions:
   \item It could be useful to have a host-clang package that is user selectable.
   \item The long-term goal is to have a complete clang-based toolchain.
 \end{itemize}
-
 The first patch series aims only to activate LLVM support for Mesa3D, and is divided
-into these 3 patches:
+into the following 3 patches:
 \begin{itemize}
   \item package/llvm: new host package
   \item package/llvm: enable target variant
@@ -70,7 +69,7 @@ It must be considered that with respect to the RFC series,
 \footnote{http://lists.busybox.net/pipermail/buildroot/2017-July/196163.html}
 AMDGPU target support was removed and it will be added once it can be tested.
 Currently, the supported targets are x86, ARM and AArch64, and llvm.mk ensures
-that only the necessary targets are built.
+that only the necessary target backends are built.
 
 \subsection*{Considerations}
 
@@ -80,10 +79,9 @@ must be installed on the host. In the first patch series, a minimal version of
 host-llvm containing only these two tools is provided. To do this, most of the
 {\fontfamily{qcr}\selectfont HOST\_LLVM\_CONF\_OPTS} are set to OFF. However,
 this does not avoid building LLVM libraries, what takes around one hour in a
-recent machine. To prevent this and build only the necessary tools:\\
-{\fontfamily{qcr}\selectfont HOST\_LLVM\_MAKE\_OPTS = llvm-tblgen llvm-config}\\
-
-Things to be considered when cross-compiling LLVM:
+recent machine. To avoid this and build only the necessary tools:\\
+{\fontfamily{qcr}\selectfont HOST\_LLVM\_MAKE\_OPTS = llvm-tblgen llvm-config}\\\\
+Things that need to be considered when cross-compiling LLVM:
 \begin{itemize}
   \item Path to host's llvm-tblgen: {\fontfamily{qcr}\selectfont
   -DLLVM\_TABLEGEN}
@@ -103,8 +101,8 @@ libraries called libLLVM.so, as {\fontfamily{qcr}\selectfont
 -DLLVM\_BUILD\_LLVM\_DYLIB} is set to ON.\\\\
 One important step in the process is the fact of replacing llvm-config in STAGING\_DIR
 by its host variant. This is because llvm-config compiled for the target cannot
-run on the host, and this is needed to build applications that use LLVM, as it
-prints the compiler flags, linker flags and object libraries needed to link
+run on the host, and this is needed to build applications that use LLVM libraries,
+as it prints the compiler flags, linker flags and object libraries needed to link
 against LLVM.
 
 \subsubsection*{Mesa3D}
@@ -152,7 +150,7 @@ the LLVM code optimizer improves the performance for rendering:
 
 \begin{table}[h!]
   \begin{center}
-    \caption{Results of GLMark2 and GLMark2-es2 benchmarks for x86\_64}
+    \caption{Results of GLMark2 and GLMark2-es2 benchmarks on x86\_64}
     \label{tab:glmark2_x86}
     \begin{tabular}{ c |c c }
     & {GLMark2} & {GLMark2-es2} \\
@@ -182,7 +180,7 @@ defconfig was selected.
     \end{tabular}
   \end{center}
 \end{table}
-Raspberry supports only OpenGL ES, so only GLMark2-es2 could be tested. When
+Raspberry only supports OpenGL ES, so only GLMark2-es2 could be tested. When
 trying to execute {\fontfamily{qcr}\selectfont glmark2} the following errors are
 obtained:\\\\
 {\fontfamily{qcr}\selectfont Error: GLX version >= 1.3 is required}\\\\
@@ -240,7 +238,7 @@ respect to the 32-bit version:
       \item Add dtoverlay=vc4-kms-v3d to config.txt
     \end{itemize}
 
-    This steps allow to load the VC4 driver correctly, however it is not yet
+    This steps allows to load the VC4 driver correctly, however it is not yet
     working well with X. When trying to execute any {\fontfamily{qcr}\selectfont
     glx} command, such as {\fontfamily{qcr}\selectfont glxinfo} or
     {\fontfamily{qcr}\selectfont glxgears}, it returns the following error:\\\\
@@ -252,8 +250,8 @@ respect to the 32-bit version:
       /usr/lib/xorg/modules/extensions/}.
       \item Mesa3D package in Buildroot states that a vanilla kernel 4.5+ must
       be used with Gallium VC4 (defconfig uses kernel from raspberrypi's Github).
-      However, even in this case or using Eric Anholt's kernel\footnote{ https://
-      github.com/anholt/mesa/wiki/VC4-complete-Raspbian-upgrade} the error persists.
+      However, even in this case or using Eric Anholt's kernel\footnote{https://github.com/anholt/mesa/wiki/VC4-complete-Raspbian-upgrade}
+      the error persists.
     \end{itemize}
 
 
@@ -281,7 +279,7 @@ respect to the 32-bit version:
 \section*{Update - 9 March 2018}
 
 \subsection*{Full host-llvm}
-After having investigated why Mesa3D was not able to link dinamically against
+After having investigated why Mesa3D was not able to link dynamically against
 libLLVM.so, it was found that the bug in llvm-config presented in Section Mesa 3D
 occurs when the option LLVM\_LINK\_LLVM\_DYLIB is not enabled. The purpose of this
 option is to generate a single shared library (libLLVM.so) and link LLVM tools
@@ -290,7 +288,7 @@ A priori, as llvm-tblgen and llvm-config are the only necessary tools for the ho
 (llvm-tblgen to cross-compile LLVM for the target and llvm-config to provide linking
 options to packages that link against LLVM libraries), it was decided to do a
 minimal llvm-host installation. However, to get the correct output from llvm-config
-it must be linked with libLLVM.so (host-variant), so this library must be built too.
+it must be linked with libLLVM.so (host-variant), so this library must also be built.
 Because of this, the first approach changed and the first patch of the series
 (package/llvm: new host package) will provide a full installation of LLVM (tools
 and libraries). This approach will avoid conflicts for packages linking with
@@ -314,7 +312,7 @@ contains the following 6 commits:
 
 \subsection*{New series to enable OpenCL}
 Once LLVM was tested working on the three more common architectures (x86, ARM and
-Aarch64), the following goal was to activate OpenCL support. This task involved
+Aarch64), the next goal was activating OpenCL support. This task involved
 multiple steps, as there are many dependencies that need to be satisfied.\\\\
 OpenCL is an API enabling general purpose computing on GPUs (GPGPU) and other
 devices (CPUs, DSPs, FPGAs, ASICs, etc.), being well suited for certain kinds of
@@ -351,11 +349,11 @@ There are multiple open source OpenCL implementations for Linux:
   \item \textbf{Pocl}\\\\
   This implementation is OpenCL 1.2 standard compliant and supports some 2.0
   features. The major goal of this project is to improve performance portability
-  of OpenCl programs, reducing the need for target-dependent manual optimizations.
+  of OpenCL programs, reducing the need for target-dependent manual optimizations.
   Pocl currently supports many CPUs (x86, ARM, MIPS, PowerPC), ASPIs(TCE/TTA),
   NVIDIA GPUs via CUDA (experimental), HSA-supported GPUs and multiple private
   off-tree targets. It also works with libclang and libLLVM but it has its own
-  Pocl Builtin Lib.
+  Pocl Builtin Lib (instead of using libclc).
   \item \textbf{Beignet}\\\\
   It targets Intel GPUs (HD and Iris) starting with Ivy Bridge, and offering
   OpenCL 2.0 support for Skylake, Kaby Lake and Apollo Lake.
@@ -392,7 +390,7 @@ Driver). It needs the following components to work:
   OpenCL implementations (ICDs) are installed on the sytem. Each file has a single
   line containing the name of the shared library containing the implementation.
   \item \textbf{One or more OpenCL implementations (the ICDs)}: the shared libraries
-  pointed to by the .icd files.
+  pointed by the .icd files.
 \end{itemize}
 
 \newpage
@@ -573,7 +571,7 @@ The results are written in JSON format, and can be converted to HTML by running:
 \begin{figure}[H]
 \centering
   \includegraphics[scale=0.65]{img/html_output.png}
-  \caption{OpenCL results in HTML}
+  \caption{OpenCL Test Suite results in HTML}
   \label{fig:html_output}
 \end{figure}
 The results of the OpenCL test suite were the following ones:
@@ -604,8 +602,9 @@ it would be useful to run Piglit with a more recent GPU using radeonsi Gallium
 driver in order to compare the results. It would also be interesting to test
 with both GPUs which packages can benefit from OpenCL support using Clover.
 \subsection*{PATCH v4}
-The PATCH v4 series sent to the Buildroot mailing list on the $29^{th}$ March
-contains the following 11 commits:
+The PATCH v4 series\footnote{http://lists.busybox.net/pipermail/buildroot/2018-March/216772.html}
+sent to the Buildroot mailing list on the $29^{th}$ March contains the following
+11 commits:
 \begin{itemize}
   \item {[PATCH v4 1/11]} package/llvm: new host package
   \item {[PATCH v4 2/11]} package/llvm: enable target variant
@@ -641,21 +640,127 @@ received:
   \item Clang binaries must be removed from the target, as there are no development
   files (headers) and other build tools.
 \end{itemize}
-After taking into account all these considerations, the next version of the series
+Taking into account all these considerations, the next version of the series
 was prepared.
 
 \subsection*{PATCH v5}
-The PATCH v5 series sent to the Buildroot mailing list on the $4^{th}$ April
-contains the following 7 commits:
+The PATCH v5 series\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/218023.html}
+sent to the Buildroot mailing list on the $4^{th}$ April contains the  following
+7 commits:
 \begin{itemize}
   \item {[PATCH v5 1/7]} package/llvm: new package
   \item {[PATCH v5 2/7]} package/llvm: enable AMDGPU
   \item {[PATCH v5 3/7]} package/mesa3d: enable llvm support
-  \item {[PATCH v4 4/7]} package/clang: new package
-  \item {[PATCH v4 5/7]} package/libclc: new package
-  \item {[PATCH v4 6/7]} package/mesa3d: enable OpenCL support
-  \item {[PATCH v4 7/7]} package/clinfo: new package
+  \item {[PATCH v5 4/7]} package/clang: new package
+  \item {[PATCH v5 5/7]} package/libclc: new package
+  \item {[PATCH v5 6/7]} package/mesa3d: enable OpenCL support
+  \item {[PATCH v5 7/7]} package/clinfo: new package
 \end{itemize}
+\newpage
+\subsection*{Achievements}
+LLVM package\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/218058.html}
+and LLVM support for Mesa 3D\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/218060.html}
+were commited to Buildroot's master branch on the $4^{th}$ April.
+\subsection*{Bug fixing}
+Thanks to Buildroot autobuilders\footnote{http://autobuild.buildroot.org/} it was
+possible to detect some bugs that were not found during development. These
+autobuilders are machines that select a target architecture, a toolchain, some
+packages randomly and try to build that configuration. There is a daily report
+containing the results of the autobuilders that shows which packages failed to
+build for a particular configuration. It is also possible to analyze the build
+log and the .config so that bugs can be corrected quickly.
+
+\subsubsection*{GCC Bug 64735}
+Autobuild:\\\\
+http://autobuild.buildroot.net/results/ada497f6a8d20fa1a9adb2b17a138d7b726a6cdc/\\\\
+Extract from build-end.log:
+\begin{lstlisting}[language=sh,keywords={}]
+output/build/llvm-5.0.1/lib/Support/ThreadPool.cpp:14:0:
+output/build/llvm-5.0.1/include/llvm/Support/ThreadPool.h: In member function
+'std::shared_future<void> llvm::ThreadPool::async(Function&&, Args&& ...)':
+output/build/llvm-5.0.1/include/llvm/Support/ThreadPool.h:54:75: error:
+return type 'class std::shared_future<void>' is incomplete inline
+std::shared_future<void> async(Function &&F, Args &&... ArgList)
+\end{lstlisting}
+Fix (Thomas Petazzoni):\\\\
+This autotest was targeting an ARM926EJ-S processor (ARMv5 architecture). LLVM
+uses std::shared\_future, which until gcc 7.x is not available on architectures
+that do not provide lock-free atomics: https://gcc.gnu.org/bugzilla/show\_bug.cgi?id=64735.
+Buildroot already has a BR2\_TOOLCHAIN\_HAS\_GCC\_BUG\_64735 option to handle such a
+case, so this new dependency must be added to LLVM. It will make sure LLVM does
+not get built on ARMv5 platforms using a GCC older than 7.x.\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218267.html
+
+\subsubsection*{Shared libraries}
+Autobuild:\\\\
+http://autobuild.buildroot.net/results/301c454c6eab802405a268f4713a574d1c366892/\\\\
+Extract from build-end.log:
+\begin{lstlisting}[language=sh,keywords={}]
+Linking CXX shared library ../../lib/libLTO.so
+arm-buildroot-linux-musleabihf/bin/ld: attempted static link of dynamic object
+`../../lib/libLLVM-5.0.so' collect2: error: ld returned 1 exit status
+\end{lstlisting}
+Fix:\\\\
+Buildroot provides an option to build and use only static libraries on the target
+system. LLVM will not work in this case as it generates shared libraries. Because
+of this, the package should not be available if BR2\_STATIC\_LIBS is set.\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218550.html
+
+\subsubsection*{BR2\_USE\_WCHAR}
+Autobuild:\\\\
+This error was detected locally.\\\\
+Extract from log:
+\begin{lstlisting}[language=sh]
+output/build/llvm-5.0.1/include/llvm/Support/ConvertUTF.h:203:53:
+error: ‘std::wstring’ has not been declared
+bool ConvertUTF8toWide(llvm::StringRef Source, std::wstring &Result);
+\end{lstlisting}
+Fix:\\\\
+LLVM uses std::wstring, so a toolchain with wchar support is necessary.\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218549.html
+
+\subsubsection*{Gallium R600 with LLVM needs libelf}
+Autobuild:\\\\
+http://autobuild.buildroot.org/results/8845ff0f28d3273ebe884126b85cd7c4a905d81b/\\\\
+Extract from log:
+\begin{lstlisting}[language=sh,keywords={}]
+checking for EXPAT... yes
+checking for RADEON... yes
+configure: error: r600 requires libelf when using llvm
+\end{lstlisting}
+Fix:\\\\
+Gallium R600 driver needs libelf when Mesa3D is built with LLVM support. Because
+of this, the toolchain must use either uClibc or glibc, as musl is not currently
+compatible with elfutils.\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218985.html
+
+\subsubsection*{llvm-config's RPATH}
+Autobuild:\\\\
+http://autobuild.buildroot.net/results/b81c12d529c66a028e2297ea5ce1d6930324fa69/\\\\
+Extract from log:
+\begin{lstlisting}[language=sh,keywords={}]
+checking for llvm-config...
+output/host/x86_64-buildroot-linux-uclibc/sysroot/usr/bin/llvm-config
+/output/host/x86_64-buildroot-linux-uclibc/sysroot/usr/bin/llvm-config:
+error while loading shared libraries: libc.so.0: cannot open shared object
+file: No such file or directory
+\end{lstlisting}
+Fix:\\\\
+In this case, Mesa 3D failed to build because it could not execute correctly
+llvm-config. The problem is the following: llvm-config (host version installed in
+STAGING\_DIR) is not being able to link correctly with the libc of the host system.
+This happens in the following scenario: target architecture = host architecture
+(normally x86\_64) and target's libc different from host's libc (normally glibc).\\\\
+As the RPATH of llvm-config specifies \$ORIGIN/../lib (seen using readelf -d
+llvm-config) and the binary is located in STAGING\_DIR/usr/bin, it tries to link
+with the libc of the target, resuting in the error displayed above.\\\\
+It was found that function llvm\_setup\_rpath in AddLLVM.cmake sets this RPATH, but
+it just returns in case CMAKE\_INSTALL\_RPATH is defined. So the final solution was
+passing HOST\_LLVM\_CONF\_OPTS += -DCMAKE\_INSTALL\_RPATH="\$(HOST\_DIR)/lib" in llvm.mk,
+so that LLVM binaries compiled for the host always link with host's libraries.\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218938.html
+
+\subsection*{Preparation of the new series}
 
 
 \end{document}
