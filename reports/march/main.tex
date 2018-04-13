@@ -761,6 +761,26 @@ so that LLVM binaries compiled for the host always link with host's libraries.\\
 Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218938.html
 
 \subsection*{Preparation of the new series}
-
+After having fixed the bugs found by the autobuilders, the OpenCL series was
+retaken, adding the following improvements:
+\begin{itemize}
+  \item In order to cross-compile Clang, now llvm-tblgen from the host is used.
+  llvm-tblgen is no longer copied to STAGING\_DIR/usr/bin.
+  \item libclc headers are now installed to /usr/local/include by using the
+  --includedir option in libclc.mk. This directory is not removed by Buildroot
+  when generating the target root filesystem.
+  \item Some missing dependencies were propagated.
+\end{itemize}
+\newpage
+\subsection*{PATCH v6}
+The PATCH v6 series\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/218849.html}
+sent to the Buildroot mailing list on the $11^{th}$ April contains the following
+4 commits:
+\begin{itemize}
+  \item {[PATCH v6 1/4]} package/clang: new package
+  \item {[PATCH v6 2/4]} package/libclc: new package
+  \item {[PATCH v6 3/4]} package/mesa3d: enable OpenCL support
+  \item {[PATCH v6 4/4]} package/clinfo: new package
+\end{itemize}
 
 \end{document}
