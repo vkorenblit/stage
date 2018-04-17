@@ -1,0 +1,128 @@
+Number of platforms                               1
+  Platform Name                                   OpenCL for the Raspberry Pi VideoCore IV GPU
+  Platform Vendor                                 doe300
+  Platform Version                                OpenCL 1.2 VC4CL 0.4
+  Platform Profile                                EMBEDDED_PROFILE
+  Platform Extensions                             cl_khr_il_program cl_khr_spir cl_altera_device_temperature cl_altera_live_object_tracking cl_khr_icd cl_vc4cl_performance_counters
+  Platform Extensions function suffix             VC4CL
+
+  Platform Name                                   OpenCL for the Raspberry Pi VideoCore IV GPU
+Number of devices                                 1
+  Device Name                                     VideoCore IV GPU
+  Device Vendor                                   Broadcom
+  Device Vendor ID                                0xa5c
+  Device Version                                  OpenCL 1.2 VC4CL 0.4
+  Driver Version                                  0.4
+  Device OpenCL C Version                         OpenCL C 1.2 
+  Device Type                                     GPU
+  Device Profile                                  EMBEDDED_PROFILE
+  Device Available                                Yes
+  Compiler Available                              Yes
+  Linker Available                                No
+  Max compute units                               1
+  Max clock frequency                             250MHz
+  Device Partition                                (core)
+    Max number of sub-devices                     0
+    Supported partition types                     None
+  Max work item dimensions                        3
+  Max work item sizes                             12x12x12
+  Max work group size                             12
+=== CL_PROGRAM_BUILD_LOG ===
+[W] Thu Jan  1 00:00:25 1970: Warnings in precompilation:
+[W] Thu Jan  1 00:00:25 1970: === CL_PROGRAM_BUILD_LOG ===
+[E] Thu Jan  1 00:00:25 1970:  (1) /usr/lib/libVC4CC.so.1.2 : vc4c::CompilationError::CompilationError(vc4c::CompilationStep, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x100 [0x76c9d474]
+[E] Thu Jan  1 00:00:25 1970:  (2) /usr/lib/libVC4CC.so.1.2 : vc4c::runProcess(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::istream*, std::ostream*, std::ostream*)+0x300 [0x76cab418]
+[E] Thu Jan  1 00:00:25 1970:  (3) /usr/lib/libVC4CC.so.1.2 : +0x6f7dc [0x76ca97dc]
+[E] Thu Jan  1 00:00:25 1970:  (4) /usr/lib/libVC4CC.so.1.2 : vc4c::Precompiler::run(std::unique_ptr<std::istream, std::default_delete<std::istream> >&, vc4c::SourceType, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, vc4c::Optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >)+0x208 [0x76caa738]
+[E] Thu Jan  1 00:00:25 1970:  (5) /usr/lib/libVC4CC.so.1.2 : vc4c::Precompiler::precompile(std::istream&, std::unique_ptr<std::istream, std::default_delete<std::istream> >&, vc4c::Configuration, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, vc4c::Optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&, vc4c::Optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >)+0x104 [0x76caaa34]
+[E] Thu Jan  1 00:00:25 1970:  (6) /usr/lib/libVC4CC.so.1.2 : vc4c::Compiler::compile(std::istream&, std::ostream&, vc4c::Configuration, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, vc4c::Optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&)+0xb0 [0x76c9efa0]
+[E] Thu Jan  1 00:00:25 1970:  (7) /usr/lib/libVC4CL.so : +0x2f788 [0x76e09788]
+[E] Thu Jan  1 00:00:25 1970:  (8) /usr/lib/libVC4CL.so : vc4cl::Program::link(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, void (*)(_cl_program*, void*), void*, std::vector<vc4cl::Program*, std::allocator<vc4cl::Program*> > const&)+0xe8 [0x76e0a9d8]
+[E] Thu Jan  1 00:00:25 1970:  (9) /usr/lib/libVC4CL.so : VC4CL_clBuildProgram+0x1c8 [0x76e0abb4]
+[E] Thu Jan  1 00:00:25 1970: Compiler threw exception: General: Error executing the child process: No such file or directory
+
+[E] Thu Jan  1 00:00:25 1970:  (1) /usr/lib/libVC4CC.so.1.2 : vc4c::CompilationError::CompilationError(vc4c::CompilationStep, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x98 [0x76c9d198]
+[E] Thu Jan  1 00:00:25 1970:  (2) /usr/lib/libVC4CC.so.1.2 : vc4c::Compiler::convert()+0x258 [0x76c9e7f8]
+[E] Thu Jan  1 00:00:25 1970:  (3) /usr/lib/libVC4CC.so.1.2 : vc4c::Compiler::compile(std::istream&, std::ostream&, vc4c::Configuration, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, vc4c::Optional<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > const&)+0x168 [0x76c9f058]
+[E] Thu Jan  1 00:00:25 1970:  (4) /usr/lib/libVC4CL.so : +0x2f788 [0x76e09788]
+[E] Thu Jan  1 00:00:25 1970:  (5) /usr/lib/libVC4CL.so : vc4cl::Program::link(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, void (*)(_cl_program*, void*), void*, std::vector<vc4cl::Program*, std::allocator<vc4cl::Program*> > const&)+0xe8 [0x76e0a9d8]
+[E] Thu Jan  1 00:00:25 1970:  (6) /usr/lib/libVC4CL.so : VC4CL_clBuildProgram+0x1c8 [0x76e0abb4]
+[E] Thu Jan  1 00:00:25 1970: Failed to remove temporary file: No such file or directory
+[E] Thu Jan  1 00:00:25 1970: Compiler threw exception: General: OpenCL code needs to be first compiled with CLang!
+  Preferred work group size multiple              <getWGsizes:675: build program : error -11>
+  Preferred / native vector sizes                 
+    char                                                16 / 16      
+    short                                               16 / 16      
+    int                                                 16 / 16      
+    long                                                 0 / 0       
+    half                                                 0 / 0        (n/a)
+    float                                               16 / 16      
+    double                                               0 / 0        (n/a)
+  Half-precision Floating-point support           (n/a)
+  Single-precision Floating-point support         (core)
+    Denormals                                     No
+    Infinity and NANs                             No
+    Round to nearest                              No
+    Round to zero                                 Yes
+    Round to infinity                             No
+    IEEE754-2008 fused multiply-add               No
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  No
+  Double-precision Floating-point support         (n/a)
+  Address bits                                    32, Little-Endian
+  Global memory size                              268435456 (256MiB)
+  Error Correction support                        No
+  Max memory allocation                           268435456 (256MiB)
+  Unified memory for Host and Device              Yes
+  Minimum alignment for any data type             64 bytes
+  Alignment of base address                       512 bits (64 bytes)
+  Global Memory cache type                        Read/Write
+  Global Memory cache size                        32768 (32KiB)
+  Global Memory cache line size                   64 bytes
+  Image support                                   Yes
+    Max number of samplers per kernel             64
+    Max size for 1D images from buffer            2048 pixels
+    Max 1D or 2D image array size                 2048 images
+    Max 2D image size                             2048x2048 pixels
+    Max 3D image size                             2048x2048x2048 pixels
+    Max number of read image args                 64
+    Max number of write image args                64
+  Local memory type                               Global
+  Local memory size                               268435456 (256MiB)
+  Max number of constant args                     64
+  Max constant buffer size                        268435456 (256MiB)
+  Max size of kernel argument                     256
+  Queue properties                                
+    Out-of-order execution                        No
+    Profiling                                     Yes
+  Prefer user sync for interop                    Yes
+  Profiling timer resolution                      1ns
+  Execution capabilities                          
+    Run OpenCL kernels                            Yes
+    Run native kernels                            No
+  printf() buffer size                            0
+  Built-in kernels                                
+  Device Extensions                               cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_byte_addressable_store cl_khr_3d_image_writes cl_intel_packed_yuv cl_nv_pragma_unroll cl_arm_core_id cl_ext_atomic_counters_32 cl_khr_initialize_memory
+
+NULL platform behavior
+  clGetPlatformInfo(NULL, CL_PLATFORM_NAME, ...)  OpenCL for the Raspberry Pi VideoCore IV GPU
+  clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, ...)   Success [VC4CL]
+  clCreateContext(NULL, ...) [default]            Success [VC4CL]
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_DEFAULT)  Success (1)
+    Platform Name                                 OpenCL for the Raspberry Pi VideoCore IV GPU
+    Device Name                                   VideoCore IV GPU
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CPU)  No devices found in platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU)  Success (1)
+    Platform Name                                 OpenCL for the Raspberry Pi VideoCore IV GPU
+    Device Name                                   VideoCore IV GPU
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ACCELERATOR)  No devices found in platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CUSTOM)  No devices found in platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ALL)  Success (1)
+    Platform Name                                 OpenCL for the Raspberry Pi VideoCore IV GPU
+    Device Name                                   VideoCore IV GPU
+
+ICD loader properties
+  ICD loader Name                                 OpenCL ICD Loader
+  ICD loader Vendor                               OCL Icd free software
+  ICD loader Version                              2.2.12
+  ICD loader Profile                              OpenCL 2.2
