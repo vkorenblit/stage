@@ -47,7 +47,7 @@ of the internship were presented and discussed at the Buildroot Developers Meeti
 in Brussels \footnote{https://elinux.org/Buildroot:DeveloperDaysFOSDEM2018}, obtaining
 the following conclusions:
 \begin{itemize}
-  \item LLVM itself is very useful for other packages (Mesa3D's llvmpipe or OpenJDK's
+  \item LLVM itself is very useful for other packages (Mesa 3D's llvmpipe or OpenJDK's
         Jit compiler).
   \item It is questionable whether there is a need for Clang in Buildroot, as GCC
         is still needed and it has mostly caught up with Clang regarding performance,
@@ -58,7 +58,7 @@ the following conclusions:
   \item It could be useful to have a host-clang package that is user selectable.
   \item The long-term goal is to have a complete clang-based toolchain.
 \end{itemize}
-The first patch series aims only to activate LLVM support for Mesa3D, and is divided
+The first patch series aims only to activate LLVM support for Mesa 3D, and is divided
 into the following 3 patches:
 \begin{itemize}
   \item package/llvm: new host package
@@ -78,14 +78,14 @@ In order to cross-compile LLVM for the target, llvm-config and llvm-tblgen tools
 must be installed on the host. In the first patch series, a minimal version of
 host-llvm containing only these two tools is provided. To do this, most of the
 {\fontfamily{qcr}\selectfont HOST\_LLVM\_CONF\_OPTS} are set to OFF. However,
-this does not avoid building LLVM libraries, what takes around one hour in a
+this does not avoid building LLVM libraries, which takes around one hour in a
 recent machine. To avoid this and build only the necessary tools:\\
 {\fontfamily{qcr}\selectfont HOST\_LLVM\_MAKE\_OPTS = llvm-tblgen llvm-config}\\\\
 Things that need to be considered when cross-compiling LLVM:
 \begin{itemize}
   \item Path to host's llvm-tblgen: {\fontfamily{qcr}\selectfont
   -DLLVM\_TABLEGEN}
-  \item Must specify that it is a cross-compilation: {\fontfamily{qcr}\selectfont
+  \item Specify that it is a cross-compilation: {\fontfamily{qcr}\selectfont
   -DCMAKE\_CROSSCOMPILING}
   \item Default target triple: {\fontfamily{qcr}\selectfont
   -DLLVM\_DEFAULT\_TARGET\_TRIPLE}
@@ -105,8 +105,8 @@ run on the host, and this is needed to build applications that use LLVM librarie
 as it prints the compiler flags, linker flags and object libraries needed to link
 against LLVM.
 
-\subsubsection*{Mesa3D}
-Currently, Mesa3D is linking against LLVM libraries statically. When setting the
+\subsubsection*{Mesa 3D}
+Currently, Mesa 3D is linking against LLVM libraries statically. When setting the
 option {\fontfamily{qcr}\selectfont MESA3D\_CONF\_OPTS += --enable-llvm-shared-libs},
 the build fails because it cannot find LLVM libraries. Apparently, the problem is
 that llvm-config placed in STAGING\_DIR is not working properly, as it provides
@@ -121,7 +121,7 @@ the following outputs to this commands:
         libLLVMLTO.a libLLVMPasses.a libLLVMObjCARCOpts.a...}
 \end{itemize}
 Even if llvm-config returns the correct lib directory, it assumes it has to use
-LLVM static libraries, and as the configure script from Mesa3D calls llvm-config
+LLVM static libraries, and as the configure script from Mesa 3D calls llvm-config
 --link-shared --libs (in case --enable-shared-libs is activated) the build
 will fail. Mesa's configure script clearly states that llvm-config may not give
 the correct output when LLVM is build as a single shared library.
@@ -180,7 +180,7 @@ defconfig was selected.
     \end{tabular}
   \end{center}
 \end{table}
-Raspberry only supports OpenGL ES, so only GLMark2-es2 could be tested. When
+Raspberry Pi only supports OpenGL ES, so only GLMark2-es2 could be tested. When
 trying to execute {\fontfamily{qcr}\selectfont glmark2} the following errors are
 obtained:\\\\
 {\fontfamily{qcr}\selectfont Error: GLX version >= 1.3 is required}\\\\
@@ -248,7 +248,7 @@ respect to the 32-bit version:
     \begin{itemize}
       \item Mesa is not installing libglx.so in {\fontfamily{qcr}\selectfont
       /usr/lib/xorg/modules/extensions/}.
-      \item Mesa3D package in Buildroot states that a vanilla kernel 4.5+ must
+      \item Mesa 3D package in Buildroot states that a vanilla kernel 4.5+ must
       be used with Gallium VC4 (defconfig uses kernel from raspberrypi's Github).
       However, even in this case or using Eric Anholt's kernel\footnote{https://github.com/anholt/mesa/wiki/VC4-complete-Raspbian-upgrade}
       the error persists.
@@ -259,7 +259,7 @@ respect to the 32-bit version:
 
 \subsection*{Next steps}
 \begin{itemize}
-  \item Enable dynamic linking for Mesa3D. This is important because when building
+  \item Enable dynamic linking for Mesa 3D. This is important because when building
         packages that link against LLVM libraries the same problem may arise.
   \item For Raspberry Pi:
     \begin{itemize}
@@ -279,15 +279,15 @@ respect to the 32-bit version:
 \section*{Update - 9 March 2018}
 
 \subsection*{Full host-llvm}
-After having investigated why Mesa3D was not able to link dynamically against
-libLLVM.so, it was found that the bug in llvm-config presented in Section Mesa 3D
+After having investigated why Mesa 3D was not able to link dynamically against
+libLLVM.so, it was found that the bug in llvm-config presented in section \textbf{Mesa 3D}
 occurs when the option LLVM\_LINK\_LLVM\_DYLIB is not enabled. The purpose of this
 option is to generate a single shared library (libLLVM.so) and link LLVM tools
 dynamically with it.\\\\
 A priori, as llvm-tblgen and llvm-config are the only necessary tools for the host
 (llvm-tblgen to cross-compile LLVM for the target and llvm-config to provide linking
 options to packages that link against LLVM libraries), it was decided to do a
-minimal llvm-host installation. However, to get the correct output from llvm-config
+minimal host-llvm installation. However, to get the correct output from llvm-config
 it must be linked with libLLVM.so (host-variant), so this library must also be built.
 Because of this, the first approach changed and the first patch of the series
 (package/llvm: new host package) will provide a full installation of LLVM (tools
@@ -337,9 +337,9 @@ There are multiple open source OpenCL implementations for Linux:
 \begin{itemize}
   \item \textbf{Clover (Computing Language over Gallium)}\\\\
   It is a hardware independent OpenCL API implementation that works with Gallium
-  Drivers (hardware dependent userspace GPU drivers). It currently supports OpenCL
-  1.1 and it is close to 1.2 and was merged into Mesa in 2012. It has the following
-  dependencies:
+  Drivers (hardware dependent userspace GPU drivers) which was merged into Mesa 3D
+  in 2012. It currently supports OpenCL 1.1 and it is close to 1.2 It has the
+  following dependencies:
     \begin{itemize}
       \item \textbf{libclang}: provides an OpenCL C compiler frontend and generates LLVM IR.
       \item \textbf{libLLVM}: LLVM IR optimization passes and hardware dependent code
@@ -449,7 +449,7 @@ following ones:
   (libclangAST.a, libclangFrontend.a, libclangLex.a, etc.) and finally a shared
   object (libclang.so) containing all of them. However, when building for the
   target, it generated multiple shared libraries and finally libclang.so. This
-  resulted in the following error when trying to use tools that link against
+  resulted in the following error when trying to use tools that link with
   libOpenCL, which statically links with libclang (e.g, clinfo):\\\\
   {\fontfamily{qcr}\selectfont
   \$ CommandLine Error: Option 'track-memory' registered more than once!\\
@@ -495,7 +495,7 @@ LIBCLC_LIBEXECDIR=`$PKG_CONFIG --variable=libexecdir libclc`
 \end{lstlisting}
 
 Currently, header files are being copied to /usr/include/clc once the root
-filesystem is generated, but this solution is only for testing because systems
+filesystem is generated, but this solution only works for testing because systems
 generated with Buildroot must work directly after being built. The next step
 is to test if LIBCLC\_INCLUDEDIR can be overwritten by specifying another path
 instead of using pkg-config.
@@ -507,7 +507,7 @@ to output all possible information, including those provided by platform-specifi
 extensions.\\\\
 This application is built with a simple Makefile, so when creating the package
 for Buildroot it was sufficient to call the generic-package infrastructure. The
-main purposes of this application are:
+main purposes of it are:
 \begin{itemize}
   \item Verifying that the OpenCL environment is set up correctly. If clinfo
   cannot find any platform or devices (or fails to load the OpenCL dispatcher
@@ -549,7 +549,7 @@ Preferred work group size multiple    64
 \end{lstlisting}
 \subsubsection*{Piglit}
 Piglit is a collection of automated tests for OpenGL and OpenCL implementations.
-The goal of this project is to help improve the quality of open source OpenGL and
+The goal of this project is to help improving the quality of open source OpenGL and
 OpenCL drivers by providing developers with a simple means to perform regression
 tests.\\\\
 Once Clover was installed on the target system, it was decided to run Piglit in
@@ -730,7 +730,7 @@ checking for RADEON... yes
 configure: error: r600 requires libelf when using llvm
 \end{lstlisting}
 Fix:\\\\
-Gallium R600 driver needs libelf when Mesa3D is built with LLVM support. Because
+Gallium R600 driver needs libelf when Mesa 3D is built with LLVM support. Because
 of this, the toolchain must use either uClibc or glibc, as musl is not currently
 compatible with elfutils.\\\\
 Commit: http://lists.busybox.net/pipermail/buildroot/2018-April/218985.html
