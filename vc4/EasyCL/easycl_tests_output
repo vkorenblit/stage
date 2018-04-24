@@ -1,0 +1,274 @@
+args: easycl_unittests --gtest_filter=-SLOW*
+Note: Google Test filter = -SLOW*
+[==========] Running 64 tests from 26 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from testscalars
+[ RUN      ] testscalars.test1
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+ build log: 
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[E] Thu Jan  1 00:02:31 1970:  (1) /usr/lib/libVC4CC.so.1.2 : vc4c::CompilationError::CompilationError(vc4c::CompilationStep, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x100 [0x76a2d474]
+[E] Thu Jan  1 00:02:31 1970:  (2) /usr/lib/libVC4CC.so.1.2 : +0x12c318 [0x76af6318]
+[E] Thu Jan  1 00:02:31 1970:  (3) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPMArea::toWriteSetup(vc4c::DataType const&) const+0xfc [0x76af7688]
+[E] Thu Jan  1 00:02:31 1970:  (4) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPM::insertWriteVPM(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::periphery::VPMArea const*, bool, vc4c::Value const&)+0xa0 [0x76afae40]
+[E] Thu Jan  1 00:02:31 1970:  (5) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::insertWriteDMA(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::Value const&, bool)+0x90 [0x76afb118]
+[E] Thu Jan  1 00:02:31 1970:  (6) /usr/lib/libVC4CC.so.1.2 : +0x10b2b0 [0x76ad52b0]
+[E] Thu Jan  1 00:02:31 1970:  (7) /usr/lib/libVC4CC.so.1.2 : +0x10b4f4 [0x76ad54f4]
+[E] Thu Jan  1 00:02:31 1970:  (8) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::mapMemoryAccess(vc4c::Module const&, vc4c::Method&, vc4c::Configuration const&)+0x304 [0x76ad783c]
+[E] Thu Jan  1 00:02:31 1970:  (9) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::Normalizer::normalizeMethod(vc4c::Module&, vc4c::Method&) const+0x124 [0x76ad9464]
+[E] Thu Jan  1 00:02:31 1970:  (10) /usr/lib/libVC4CC.so.1.2 : +0x60450 [0x76a2a450]
+[E] Thu Jan  1 00:02:31 1970:  (11) /usr/lib/libstdc++.so.6 : +0x92928 [0x76e47928]
+[E] Thu Jan  1 00:02:31 1970: Background worker threw error: General: Invalid parameter type-size: 64
+[E] Thu Jan  1 00:02:31 1970: Compiler threw exception: General: Invalid parameter type-size: 64
+
+kernel build error:
+Something went wrong with clCreateKernel, OpenCL error code -45
+ build log: 
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[E] Thu Jan  1 00:02:31 1970:  (1) /usr/lib/libVC4CC.so.1.2 : vc4c::CompilationError::CompilationError(vc4c::CompilationStep, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x100 [0x76a2d474]
+[E] Thu Jan  1 00:02:31 1970:  (2) /usr/lib/libVC4CC.so.1.2 : +0x12c318 [0x76af6318]
+[E] Thu Jan  1 00:02:31 1970:  (3) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPMArea::toWriteSetup(vc4c::DataType const&) const+0xfc [0x76af7688]
+[E] Thu Jan  1 00:02:31 1970:  (4) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPM::insertWriteVPM(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::periphery::VPMArea const*, bool, vc4c::Value const&)+0xa0 [0x76afae40]
+[E] Thu Jan  1 00:02:31 1970:  (5) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::insertWriteDMA(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::Value const&, bool)+0x90 [0x76afb118]
+[E] Thu Jan  1 00:02:31 1970:  (6) /usr/lib/libVC4CC.so.1.2 : +0x10b2b0 [0x76ad52b0]
+[E] Thu Jan  1 00:02:31 1970:  (7) /usr/lib/libVC4CC.so.1.2 : +0x10b4f4 [0x76ad54f4]
+[E] Thu Jan  1 00:02:31 1970:  (8) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::mapMemoryAccess(vc4c::Module const&, vc4c::Method&, vc4c::Configuration const&)+0x304 [0x76ad783c]
+[E] Thu Jan  1 00:02:31 1970:  (9) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::Normalizer::normalizeMethod(vc4c::Module&, vc4c::Method&) const+0x124 [0x76ad9464]
+[E] Thu Jan  1 00:02:31 1970:  (10) /usr/lib/libVC4CC.so.1.2 : +0x60450 [0x76a2a450]
+[E] Thu Jan  1 00:02:31 1970:  (11) /usr/lib/libstdc++.so.6 : +0x92928 [0x76e47928]
+[E] Thu Jan  1 00:02:31 1970: Background worker threw error: General: Invalid parameter type-size: 64
+[E] Thu Jan  1 00:02:31 1970: Compiler threw exception: General: Invalid parameter type-size: 64
+
+storing failed kernel into: easycl-failedkernel.cl
+unknown file: Failure
+C++ exception with description "Something went wrong with clCreateKernel, OpenCL error code -45
+ build log: 
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[W] Thu Jan  1 00:02:31 1970: 64-bit operations are not supported by the VideoCore IV architecture, further compilation may fail!
+[E] Thu Jan  1 00:02:31 1970:  (1) /usr/lib/libVC4CC.so.1.2 : vc4c::CompilationError::CompilationError(vc4c::CompilationStep, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x100 [0x76a2d474]
+[E] Thu Jan  1 00:02:31 1970:  (2) /usr/lib/libVC4CC.so.1.2 : +0x12c318 [0x76af6318]
+[E] Thu Jan  1 00:02:31 1970:  (3) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPMArea::toWriteSetup(vc4c::DataType const&) const+0xfc [0x76af7688]
+[E] Thu Jan  1 00:02:31 1970:  (4) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::VPM::insertWriteVPM(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::periphery::VPMArea const*, bool, vc4c::Value const&)+0xa0 [0x76afae40]
+[E] Thu Jan  1 00:02:31 1970:  (5) /usr/lib/libVC4CC.so.1.2 : vc4c::periphery::insertWriteDMA(vc4c::Method&, vc4c::InstructionWalker, vc4c::Value const&, vc4c::Value const&, bool)+0x90 [0x76afb118]
+[E] Thu Jan  1 00:02:31 1970:  (6) /usr/lib/libVC4CC.so.1.2 : +0x10b2b0 [0x76ad52b0]
+[E] Thu Jan  1 00:02:31 1970:  (7) /usr/lib/libVC4CC.so.1.2 : +0x10b4f4 [0x76ad54f4]
+[E] Thu Jan  1 00:02:31 1970:  (8) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::mapMemoryAccess(vc4c::Module const&, vc4c::Method&, vc4c::Configuration const&)+0x304 [0x76ad783c]
+[E] Thu Jan  1 00:02:31 1970:  (9) /usr/lib/libVC4CC.so.1.2 : vc4c::normalization::Normalizer::normalizeMethod(vc4c::Module&, vc4c::Method&) const+0x124 [0x76ad9464]
+[E] Thu Jan  1 00:02:31 1970:  (10) /usr/lib/libVC4CC.so.1.2 : +0x60450 [0x76a2a450]
+[E] Thu Jan  1 00:02:31 1970:  (11) /usr/lib/libstdc++.so.6 : +0x92928 [0x76e47928]
+[E] Thu Jan  1 00:02:31 1970: Background worker threw error: General: Invalid parameter type-size: 64
+[E] Thu Jan  1 00:02:31 1970: Compiler threw exception: General: Invalid parameter type-size: 64
+storing failed kernel into: easycl-failedkernel.cl
+" thrown in the test body.
+[  FAILED  ] testscalars.test1 (75455 ms)
+[----------] 1 test from testscalars (75455 ms total)
+
+[----------] 1 test from testintarray
+[ RUN      ] testintarray.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+5 8 26 14 17 
+7 10 34 16 19 
+tests completed ok
+[       OK ] testintarray.main (68581 ms)
+[----------] 1 test from testintarray (68581 ms total)
+
+[----------] 3 tests from testfloatwrapper
+[ RUN      ] testfloatwrapper.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testfloatwrapper.main (71079 ms)
+[ RUN      ] testfloatwrapper.singlecopytodevice
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+[       OK ] testfloatwrapper.singlecopytodevice (1 ms)
+[ RUN      ] testfloatwrapper.doublecopytodevice
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+[       OK ] testfloatwrapper.doublecopytodevice (1 ms)
+[----------] 3 tests from testfloatwrapper (71081 ms total)
+
+[----------] 2 tests from testqueues
+[ RUN      ] testqueues.main
+start
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testqueues.main (69716 ms)
+[ RUN      ] testqueues.defaultqueue
+start
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+cl->queue 0xf0b8d8
+*cl->queue 0x1098258
+cl->default_queue->queue0x1098258
+tests completed ok
+[       OK ] testqueues.defaultqueue (69969 ms)
+[----------] 2 tests from testqueues (139685 ms total)
+
+[----------] 1 test from testclarray
+[ RUN      ] testclarray.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testclarray.main (71562 ms)
+[----------] 1 test from testclarray (71562 ms total)
+
+[----------] 1 test from testfloatwrapperconst
+[ RUN      ] testfloatwrapperconst.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testfloatwrapperconst.main (70102 ms)
+[----------] 1 test from testfloatwrapperconst (70102 ms total)
+
+[----------] 1 test from testintwrapper
+[ RUN      ] testintwrapper.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testintwrapper.main (69920 ms)
+[----------] 1 test from testintwrapper (69920 ms total)
+
+[----------] 1 test from test_scenario_te42kyfo
+[ RUN      ] test_scenario_te42kyfo.main
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+finished
+[       OK ] test_scenario_te42kyfo.main (67494 ms)
+[----------] 1 test from test_scenario_te42kyfo (67494 ms total)
+
+[----------] 1 test from testfloatarray
+[ RUN      ] testfloatarray.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+5 8 26 14 17 
+7 10 34 16 19 
+tests completed ok
+[       OK ] testfloatarray.main (67650 ms)
+[----------] 1 test from testfloatarray (67650 ms total)
+
+[----------] 2 tests from testeasycl
+[ RUN      ] testeasycl.main
+start
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testeasycl.main (68985 ms)
+[ RUN      ] testeasycl.power2helper
+[       OK ] testeasycl.power2helper (0 ms)
+[----------] 2 tests from testeasycl (68986 ms total)
+
+[----------] 1 test from testinout
+[ RUN      ] testinout.main
+found opencl library
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+tests completed ok
+[       OK ] testinout.main (67367 ms)
+[----------] 1 test from testinout (67367 ms total)
+
+[----------] 7 tests from testlocal
+[ RUN      ] testlocal.uselocal
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+kernel failed to run, saving to easycl-failedkernel.cl
+unknown file: Failure
+C++ exception with description "Invalid work group size, code -54" thrown in the test body.
+[  FAILED  ] testlocal.uselocal (73568 ms)
+[ RUN      ] testlocal.notUselocal
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+kernel failed to run, saving to easycl-failedkernel.cl
+unknown file: Failure
+C++ exception with description "Invalid work group size, code -54" thrown in the test body.
+[  FAILED  ] testlocal.notUselocal (73460 ms)
+[ RUN      ] testlocal.globalreduce
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:61: Failure
+Value of: sumViaCpu
+  Actual: 450
+Expected: myarray[0]
+Which is: 45
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:61: Failure
+Value of: sumViaCpu
+  Actual: 450
+Expected: myarray[0]
+Which is: 45
+[  FAILED  ] testlocal.globalreduce (73644 ms)
+[ RUN      ] testlocal.localreduce
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:86: Failure
+Value of: sumViaCpu
+  Actual: 450
+Expected: myarray[0]
+Which is: 21
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:86: Failure
+Value of: sumViaCpu
+  Actual: 450
+Expected: myarray[0]
+Which is: 21
+[  FAILED  ] testlocal.localreduce (193205 ms)
+[ RUN      ] testlocal.reduceviascratch_multipleworkgroups
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+expected sum, calc'd via cpu, : 642
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:130: Failure
+Value of: finalSum
+  Actual: 0
+Expected: sumViaCpu
+Which is: 642
+[  FAILED  ] testlocal.reduceviascratch_multipleworkgroups (192997 ms)
+[ RUN      ] testlocal.reduceviascratch_multipleworkgroups_ints
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+numworkgroups 12 workgroupsize 12 N 144
+/home/vakor/buildroot/test/opencl-vc4/build/easycl-d4d47ff25fce4c761c8004ee15ebd12d90ca6f2a/test/testlocal.cpp:187: Failure
+Value of: finalSum
+  Actual: 0
+Expected: sumViaCpu
+Which is: 3612
+[  FAILED  ] testlocal.reduceviascratch_multipleworkgroups_ints (194560 ms)
+[ RUN      ] testlocal.reduce_multipleworkgroups_ints_noscratch
+OpenCL platform: OpenCL for the Raspberry Pi VideoCore IV GPU
+OpenCL device: VideoCore IV GPU
+numworkgroups 12 workgroupsize 12 N 144
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  vector::_M_range_check: __n (which is 0) >= this->size() (which is 0)
