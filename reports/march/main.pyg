@@ -1,0 +1,6 @@
+// Add libclc generic search path
+c.getHeaderSearchOpts().AddPath(LIBCLC_INCLUDEDIR,
+                                clang::frontend::Angled,
+                                false, false);
+// Add libclc include
+c.getPreprocessorOpts().Includes.push_back("clc/clc.h");

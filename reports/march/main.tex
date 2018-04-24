@@ -10,13 +10,13 @@
                 keywordstyle=\color{blue},
                 stringstyle=\color{red},
                 commentstyle=\color{green},
+                escapeinside={<@}{@>},
                 morecomment=[l][\color{magenta}]{\#}
 }
 
 \usepackage{caption}
 \usepackage{float}
 \usepackage[nodayofweek]{datetime}
-
 \usepackage{footnote}
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
@@ -785,4 +785,257 @@ sent to the Buildroot mailing list on the $11^{th}$ April contains the following
   \item {[PATCH v6 4/4]} package/clinfo: new package
 \end{itemize}
 
+\newpage
+\section*{Update - 23 April 2018}
+\subsection*{OpenCL for Broadcom Videocore IV}
+The next goal was adding OpenCL support for the Broadcom Videocore IV GPU in
+Buildroot. This is an interesting feature considering that this GPU is embedded
+in all Raspberry Pi models.
+\subsubsection*{Videocore IV architecture}
+The VC4 has multiple instances of a special purpose floating-point shader processor,
+called a Quad Processor (QPU). The QPU is a 16-way SIMD processor, where each
+processor has two vector floating point ALUs which carry out multiply and
+non-multiply operations in parallel with single instruction cycle latency.
+Internally the QPU is a 4-way SIMD processor multiplexed 4x over four cycles
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.85]{img/vc4_qpu_vector.png}
+  \caption{QPU data model}
+  \label{fig:html_output}
+\end{figure}
+QPU is SIMD architecture (Single Instruction, Multiple Data), this means that one
+instruction operates on a vector of elements. When looking from the programmer's
+point of view, it processes a vector of 16 elements each 32-bits long. If physical
+structure is taken into account, a QPU processes only a 4-element vector (quad).
+By repeating the instruction 4 times for consecutive quads in a 16-element vector,
+it provides a virtual SIMD-16.\\\\
+QPUs are organized into groups of up to four, termed slices, which share certain
+common resources: each slice shares an instruction cache, a Special Function Unit
+(for recip/recipsqrt/log/exp functions), one or two Texture and Memory lookup units
+and Interpolation units. As the Videocore IV has 3 slices of 4 QPUs each one,
+it provides 12 QPUs and 3 SFUs, which makes this GPU an interesting option for
+solving problems that present data level parallelism. Broadcom claims a computational
+power of 24 GFLOPs, which comes out from the following equation:\\\\
+250 MHz (Clock Rate) * 4-Way SIMD * 2 Asymmetric ALUs * 12 QPUs = 24 GFLOPs
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=1]{img/vc4_qpu.png}
+  \caption{Simplified architecture of the Videocore IV}
+  \label{fig:html_output}
+\end{figure}
+
+\subsubsection*{VC4CL}
+There is an open source project called VC4CL\footnote{https://github.com/doe300/VC4CL/wiki}
+that provides an implementation that supports the EMBEDDED PROFILE (trimmed
+version of the default FULL PROFILE) of the OpenCL 1.2 standard for the VideoCore
+IV GPU. This implementation consists of:
+\begin{itemize}
+    \item The VC4CL OpenCL runtime library, running on the CPU to compile,
+    run and interact with OpenCL kernels.
+    \item The VC4C compiler, converting OpenCL kernels into machine code. This
+    compiler also provides an implementation of the OpenCL built-in functions.
+    \item The VC4CLStdLib, the platform-specific implementation of the OpenCL C
+    standard library, it is linked with the kernel via VC4C.
+\end{itemize}
+The {\fontfamily{qcr}\selectfont cl\_khr\_icd} extension is supported to allow
+VC4CL to be found by an installable client driver loader (ICD). As explained
+before, it allows VC4CL to be used in parallel with other OpenCL implementations.
+\\\\
+Not supported features:
+\begin{itemize}
+  \item 64-bit data-types (long and double via {\fontfamily{qcr}\selectfont cl\_khr\_fp64})
+  are unsupported, since the Videocore IV GPU only provides 32-bit instructions.
+  \item The {\fontfamily{qcr}\selectfont cl\_khr\_fp16} half floating-point type is
+  also not supported.
+  \item Images (WIP).
+  \item Any application which requires a work-group with more than 12 work-items.
+  \item Using VC4CL in combination with other applications using the VideoCore IV
+  GPU (e.g. the VC4 Mesa driver) is untested and can cause issues on both sides.
+\end{itemize}
+
+\subsubsection*{VC4CL package for Buildroot}
+In order to install VC4CL, VC4CLStdLib and VC4C are needed. As these projects
+are thought to be installed natively on top of a Raspbian distribution, some changes
+were made to cross-compile them under the Buildroot environment.\\\\
+When instaling VC4CLStdLib, it was necessary to change the location
+of its header files to /usr/local/include, as they are required on runtime by the
+VC4C compiler and, as explained before, Buildroot removes the /usr/include
+directory from the target filesystem.\\\\
+One particularity of this implementation is that it calls Clang binaries in order
+to compile OpenCL kernels on the target instead of linking with libclang, as most
+OpenCL implementations do. Even if the package was tested and working, this fact
+prevents this patch series from being sent to the Buildroot mailing list, as the
+mantainers do not allow a compiler to be installed on the target.\\\\
+The VC4C package has the same dependencies as Clang, but also needs VC4CLStdLib
+and Raspberry Pi Userland, the latter providing EGL and KHR headers. Regarding
+VC4C's Makefile, two hooks were added: one to copy Clang binaries to /usr/bin
+(Clang's Makefile removes them from the target) and another one to install a
+precompiled header (VC4CLStdLib.h.pch) that is built during VC4C's compilation
+to /usr/local/include/vc4cl-stdlib, as it is a runtime dependency of VC4CL.\\\\
+VC4C gives the user the possibility of choosing among three different frontends:
+LLVM IR Parser, SPIR-V Reader or LLVM Library:
+\begin{table}[h!]
+  \begin{center}
+    \caption{Frontends}
+    \label{tab:piglit_opencl}
+    \begin{tabular}{c|c|c|c}
+    \textbf{Frontend}  & \textbf{LLVM IR Parser} & \textbf{SPIR-V Reader} & \textbf{LLVM Library} \\
+    \hline
+    Input formats & LLVM IR text & SPIR-V text/bin & LLVM IR text/bin \\
+    Speed &	Slow &	Fast &	Faster \\
+    Supported LLVMs &	Standard/SPIRV &	SPIRV &	Standard/SPIRV \\
+    Runtime Deps &	Clang &	SPIRV-LLVM Clang  &	Clang, libLLVM \\
+    Development Deps &	- & SPIRV-Tools	& LLVM headers \\
+    Configuration &	LLVMIR\_FRONTEND &	SPIRV\_FRONTEND &	LLVMLIB\_FRONTEND\\
+    Supports linking & No & Yes & No
+    \end{tabular}
+  \end{center}
+\end{table}\\
+The LLVM Library frontend was selected, as its dependencies are already packaged
+in Buildroot and this is also the suggested option by the creator of the project.
+It suffices to give the path to llvm-config installed in STAGING\_DIR in vc4c.mk
+so that libLLVM.so can be found.\\\\
+It is important to remark that CMakeLists.txt of VC4C was patched because it
+needs to find and execute Clang during configuration (which can only be achieved
+by passing the path to host's Clang) but needs the path to target's Clang for
+runtime kernel compilation.\\\\
+The last step was packaging VC4CL. This package needs ocl-icd as a dependency, so
+this package was also created and VC4CL was built with ICD support, so that VC4CL.icd
+containing the path to libVC4CL.so was installed to /etc/OpenCL/vendors.
+
+\subsubsection*{Testing VC4CL}
+To verify that the OpenCL environment was correctly set up, clinfo was installed
+and executed, obtaining the following output:
+\begin{lstlisting}[language=sh,caption={Output of clinfo},captionpos=b,keywords={}]
+Number of platforms                    1
+Platform Name                         OpenCL for the Raspberry Pi VideoCore
+                                      IV GPU
+Platform Vendor                       doe300
+Platform Version                      OpenCL 1.2 VC4CL 0.4
+Platform Profile                      EMBEDDED_PROFILE
+Platform Extensions                   cl_khr_il_program cl_khr_spir
+                                      cl_altera_device_temperature
+                                      cl_altera_live_object_tracking
+                                      cl_khr_icd
+                                      cl_vc4cl_performance_counters
+Platform Extensions function suffix   VC4CL
+Platform Name                         OpenCL for the Raspberry Pi VideoCore
+                                      IV GPU
+Number of devices                     1
+Device Name                           VideoCore IV GPU
+Device Vendor                         Broadcom
+Device Vendor ID                      0xa5c
+Device Version                        OpenCL 1.2 VC4CL 0.4
+Driver Version                        0.4
+Device OpenCL C Version               OpenCL C 1.2
+Device Type                           GPU
+Device Profile                        EMBEDDED_PROFILE
+Device Available                      Yes
+Compiler Available                    Yes
+Linker Available                      No
+Max compute units                     1
+Max clock frequency                   250MHz
+Device Partition                      (core)
+Max number of sub-devices             0
+Supported partition types             None
+Max work item dimensions              3
+Max work item sizes                   12x12x12
+Max work group size                   12
+Preferred work group size multiple    1
+\end{lstlisting}
+Something that called the attention during the execution of clinfo was the fact
+that it took much more time than expected. This application calls
+clCreateProgramWithSource() in order to create a program object receiving the
+source code of an OpenCL kernel as input. This step involves calling Clang, which
+results in a bottleneck when using a Cortex-A7 processor running at 900Mhz
+(Raspberry Pi 2), considering that OpenCL programs are made to improve execution time.
+\begin{lstlisting}[language=sh,caption={Clang invocation by clCreateProgramWithSource() },captionpos=b,keywords={}]
+/usr/bin/clang -cc1 -triple spir-unknown-unknown  -O3 -ffp-contract=off
+-cl-std=CL1.2 -cl-kernel-arg-info -cl-single-precision-constant
+-Wno-undefined-inline -Wno-unused-parameter -Wno-unused-local-typedef
+-Wno-gcc-compat -x cl -S -emit-llvm-bc -o /tmp/vc4c-DRbyiL
+-include-pch /usr/local/include/vc4cl-stdlib/VC4CLStdLib.h.pch
+\end{lstlisting}
+Most OpenCL programs make use of this function, but compiling kernels on the
+target is definitely not a viable solution. A better alternative is to compile
+kernels on the host and use clCreateProgramWithBinary(). This function creates a
+program object for a context, and loads specified binary data into the program
+object. For this, OpenCL kernels must be compiled to LLVM bitcode by using host-clang:
+\begin{lstlisting}[language=sh,caption={Compiling OpenCL C to LLVM bitcode},captionpos=b,keywords={}]
+clang -cc1 -emit-llvm-bc -o kernel_pi.bc kernel_pi.cl
+\end{lstlisting}
+On the other side, the program must read the corresponding bitcode file and then
+create the program by calling clCreateProgramWithBinary:
+\begin{lstlisting}[language=C,caption={Example using clCreateProgramWithBinary},captionpos=b,showstringspaces=false]
+FILE *fp;
+char fileName[] = "./kernel_pi.bc";
+size_t binary_size;
+char *binary_buf;
+
+/* Load kernel binary */
+fp = fopen(fileName, "r");
+if (!fp) {
+        fprintf(stderr, "Could not read the kernel file: %s\n", fileName);
+        exit(1);
+}
+binary_buf = (char *)malloc(MAX_BINARY_SIZE);
+binary_size = fread(binary_buf, 1, MAX_BINARY_SIZE, fp);
+fclose(fp);
+...
+...
+clGetPlatformIDs(..
+clGetDeviceIDs(...
+clCreateContext(...
+clCreateCommandQueue(...
+
+/* Create kernel program from the kernel binary */
+program = clCreateProgramWithBinary(context, 1, &device_id,
+                                   (const size_t *)&binary_size,
+                                   (const unsigned char **)&binary_buf,
+                                   &binary_status, &error);
+
+error = clBuildProgram(program,...
+...
+...
+\end{lstlisting}
+This approach drastically improves the performance and would be the suitable
+solution when running OpenCL programs on embedded platforms. Furthermore, it does
+not need major changes in the code, but compiled kerneles must be shipped together
+with the executable file.\\\\
+In order to test some real OpenCL application, the EasyCL project was added to
+Buildroot, allowing to get an idea about what kind of functionalities work
+correctly. Many tests failed with the following error:
+\begin{lstlisting}[language=sh,caption={},captionpos=b,keywords={}]
+64-bit operations are not supported by the VideoCore IV architecture,
+further compilation may fail!
+\end{lstlisting}
+The test suite was aborted when running {\fontfamily{qcr}\selectfont reduce\_multipleworkgroups\_ints\_noscratch}
+because of an invalid index:
+\begin{lstlisting}[language=sh,caption={},captionpos=b,keywords={}]
+terminate called after throwing an instance of 'std::out_of_range'
+\end{lstlisting}
+The final results:
+\begin{lstlisting}[language=sh,caption={EasyCL tests},captionpos=b,keywords={OK}]
+[  <@\textcolor{red}{FAILED}@>  ] testscalars.test1 (75455 ms)
+[       OK ] testintarray.main (68581 ms)
+[       OK ] testfloatwrapper.main (71079 ms)
+[       OK ] testfloatwrapper.singlecopytodevice (1 ms)
+[       OK ] testfloatwrapper.doublecopytodevice (1 ms)
+[       OK ] testqueues.main (69716 ms)
+[       OK ] testqueues.defaultqueue (69969 ms)
+[       OK ] testclarray.main (71562 ms)
+[       OK ] testfloatwrapperconst.main (70102 ms)
+[       OK ] testintwrapper.main (69920 ms)
+[       OK ] test_scenario_te42kyfo.main (67494 ms)
+[       OK ] testfloatarray.main (67650 ms)
+[       OK ] testeasycl.main (68985 ms)
+[       OK ] testeasycl.power2helper (0 ms)
+[       OK ] testinout.main (67367 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.uselocal (73568 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.notUselocal (73460 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.globalreduce (73644 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.localreduce (193205 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.reduceviascratch_multipleworkgroups (192997 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.reduceviascratch_multipleworkgroups_ints (194560 ms)
+\end{lstlisting}
 \end{document}
