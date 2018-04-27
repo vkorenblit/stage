@@ -25,6 +25,8 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{dirtytalk}
+\usepackage{tikzsymbols}
+
 \graphicspath{{img/}}
 
 \lstset{basicstyle=\ttfamily\scriptsize}
@@ -177,7 +179,7 @@ Smile \\~\\
 \begin{itemize}
   \item Challenges
   \begin{itemize}
-    \item Kernel expects to use some GCC behavior that is not supported by Clang:
+    \item Linux kernel expects to use some GCC behavior that is not supported by Clang:
     \begin{itemize}
       \item Variable Length Arrays inside structures
       \item Nested functions
@@ -191,6 +193,24 @@ Smile \\~\\
   \item glibc\footnote{https://sourceware.org/glibc/wiki/GlibcMeetsClang} ?
 \end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{Toolchain components}
+\centering
+  \begin{tabular}{c|c|c}
+  \textbf{Component} & \textbf{LLVM} & \textbf{GNU} \\
+  \hline
+  C/C++ Compiler & clang & gcc \\
+  Assembler & cc1as & as \\
+  Linker & lld & ld \\
+  RUntime & compiler-rt & libgcc \\
+  Unwinder & libunwind & libgcc\_s \\
+  C++ library & libc++abi, libc++ & libsupc++ libstdc++ \\
+  Tools & llvm-ar, llvm-as etc. & ar, objdump, etc. \\
+  C library & - & libc \\
+  \end{tabular}
+\end{frame}
+
 %-------------------------------------------------------
 \section{LLVM/Clang integration to Buildroot}
 
@@ -286,22 +306,6 @@ Smile \\~\\
 \end{frame}
 
 \begin{frame}
-\frametitle{LLVM package}
-\begin{itemize}
-  \item CMake-based project
-  \begin{itemize}
-    \item Buildroot provides a CMake infrastructure \smiley
-  \end{itemize}
-  \item Plenty of options
-  \item Difficult to be cross-compiled
-  \begin{itemize}
-    \item At least llvm-tblgen must be compiled for the host first
-    \item
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
 \frametitle{LLVM package - Directory Layout}
 \begin{itemize}
   \item llvm/lib/ Most source files are here
@@ -326,6 +330,143 @@ Smile \\~\\
     \item llvmgrep
     \item \textbf{TableGen}
   \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{LLVM package}
+\begin{itemize}
+  \item CMake-based project
+  \begin{itemize}
+    \item Buildroot provides a CMake infrastructure \smiley
+  \end{itemize}
+  \item Plenty of options, some with misleading names
+  \begin{itemize}
+    \item {\fontfamily{qcr}\selectfont LLVM\_TARGETS\_TO\_BUILD}
+    \item {\fontfamily{qcr}\selectfont LLVM\_TARGET\_ARCH}
+    \item {\fontfamily{qcr}\selectfont LLVM\_DEFAULT\_TARGET\_TRIPLE}
+    \item {\fontfamily{qcr}\selectfont LLVM\_HOST\_TRIPLE}
+  \end{itemize}
+  \item Difficult to be cross-compiled
+  \begin{itemize}
+    \item At least llvm-tblgen must be compiled for the host first
+    \item It requires a modern and fully-featured toolchain
+  \end{itemize}
+  \item Takes a lot of time to compile
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{LLVM packaging for Buildroot}
+\begin{itemize}
+  \item LLVM 5.0.1 selected
+  \item Only LLVM libraries are needed (libLLVM.so), no tools
+  \item The main problem: \textbf{llvm-config} not giving the desired output
+  \begin{itemize}
+    \item It's a compiled program. Normally ''config'' programs are scripts.
+    \item llvm-config compiled for the host must be installed to the target's
+    sysroot.
+    \item Some output depends on its location and some other is contained in the
+    binary \Sey
+  \end{itemize}
+  \item \textbf{Solution:} do a full installation of LLVM for the host using the
+  same\footnote{Tools are not built for the target} configuration options as for
+  the target and link LLVM tools with libLLVM.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{LLVM support for Mesa 3D drivers}
+\begin{itemize}
+  \item Gallium llvmpipe: fastest software rasterizer for Mesa
+  \begin{itemize}
+    \item Uses LLVM to do runtime code generation
+  \end{itemize}
+  \item Gallium R600 and RadeonSI
+  \begin{itemize}
+    \item Both use AMDGPU LLVM backend
+  \end{itemize}
+    \item Some benchmarks:
+\end{itemize}
+\centering
+  \begin{tabular}{c|c|c}
+  \textbf{Gallium Driver} & \textbf{GLMark2} & \textbf{GLMark2-es2} \\
+  \hline
+  R600 on HD6480 & 156 & 156 \\
+  softpipe on AMD A4-3300M & 3 & 3 \\
+  softpipe on Cortex-A53 (32-bit) & - & 0 \\
+  softpipe on Cortex-A53 (64-bit) & - & 0 \\
+  llvmpipe on AMD A4-3300M & 47 & 52 \\
+  llvmpipe on Cortex-A53 (32-bit) & - & 11 \\
+  llvmpipe on Cortex-A53 (64-bit) & - & 13 \\
+  \end{tabular}
+\end{frame}
+
+\begin{frame}
+\frametitle{Selecting llvmpipe}
+\begin{figure}
+\includegraphics[width=1\linewidth]{img/mesa_swrast.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{OpenCL}
+\begin{itemize}
+  \item API enabling general purpose computing on GPUs, CPUs, DSP,s FPGAs, etc.
+  Well suited for certain kinds of parallel computations:
+  \begin{itemize}
+    \item Hash cracking (SHA, MD5, etc.)
+    \item Image processing
+    \item Simulations
+  \end{itemize}
+  \item OpenCL presents itself as a library with a simple interface:
+  \begin{itemize}
+    \item Standarized API headers for C and C++
+    \item The OpenCL library (libOpenCL.so): collection of types and functions
+    which all conforming implementations must provide.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{OpenCL - Open Source Implementations}
+\centering
+{
+\begin{tabular}{c|c|c}
+\textbf{Project} & \textbf{Version} & \textbf{Hardware} \\
+\hline
+Clover & 1.1 & AMD\\
+Pocl & 1.2 & CPU, NVIDIA\footnote{Needs propietary drivers}, AMD\footnote{HSA
+compatible hardware}, TCE/TTA\\
+Beignet & 2.0 & Intel\\
+ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
+\end{tabular}
+}
+\vfill
+\begin{itemize}
+  \item OCL ICD Loader allows multiple OpenCL implementations to co-exist on
+  the same system
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Clover}
+\begin{figure}
+\includegraphics[width=0.7\linewidth]{img/clover.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Clang packaging for Buildroot}
+\begin{itemize}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{libclc packaging for Buildroot}
+\begin{itemize}
+
 \end{itemize}
 \end{frame}
 
