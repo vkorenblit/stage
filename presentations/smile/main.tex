@@ -64,7 +64,7 @@ Smile \\~\\
   \begin{itemize}
     \item llvmpipe for Mesa 3D
     \item AMDGPU backend
-    \item OpenCL imlementations
+    \item OpenCL implementations
   \end{itemize}
   \item OpenCL support for already existing packages in Buildroot
   \item Integration of new packages that can benefit from OpenCL:
@@ -98,7 +98,7 @@ Smile \\~\\
 \begin{frame}
 \frametitle{LLVM - Three-phase approach}
 \begin{figure}
-\includegraphics[width=0.8\linewidth]{img/llvm_struct.png}
+\includegraphics[width=1\linewidth]{img/llvm_struct.png}
 \end{figure}
 \end{frame}
 
@@ -158,16 +158,17 @@ Smile \\~\\
   \item Android: Renderscript compiler based on LLVM
   \item Apple
   \begin{itemize}
-    \item All operating systems built with LLVM
+    \item All operating systems built with Clang
     \item Xcode IDE uses Clang compiler and static analyzer by default
   \end{itemize}
   \item FreeBSD can be entirely built with Clang/LLVM
   \item Google is using Clang for building:
   \begin{itemize}
     \item Android user space
-    \item Chrome on Linux
+    \item Chrome for all platforms (since March 2018)
   \end{itemize}
   \item OpenCL: AMD, Apple, Intel, NVidia (runtime compiler)
+  \item OpenJDK: Shark JIT compiler for Zero
   \item Sony Interactive Entretainment: CPU compiler for PS4
 \end{itemize}
 \end{frame}
@@ -189,11 +190,13 @@ Smile \\~\\
   \end{itemize}
   \item LLVMLinux Project: Kernel 4.4 and 4.9 built with Clang for x86\_64 and ARM64
   (patches applied)\footnote{https://lwn.net/Articles/734071/}
-  \item Still depends on GNU {\fontfamily{qcr}\selectfont gas} and {\fontfamily{qcr}\selectfont ld}
+  \item Still depends on GNU {\fontfamily{qcr}\selectfont as} and {\fontfamily{qcr}\selectfont ld}
   \item glibc\footnote{https://sourceware.org/glibc/wiki/GlibcMeetsClang} ?
 \end{itemize}
 \end{frame}
 
+%-------------------------------------------------------
+\section{Toolchain components}
 \begin{frame}
 \frametitle{Toolchain components}
 \centering
@@ -227,46 +230,6 @@ Smile \\~\\
 \end{frame}
 
 \begin{frame}
-\frametitle{LLVM/Clang integration to Buildroot - Considerations}
-\begin{itemize}
-  \item LLVM/Clang versions
-  \begin{itemize}
-    \item Current version: 5.0.1 - Upcoming release: 6.0.0 on Feb 21
-  \end{itemize}
-  \item How to decide which packages are compiled with each compiler (GCC/Clang)?
-  \begin{itemize}
-    \item i.e. Debian packages: 28203 packages have been rebuild. Among them, 1445 (5.1 \%) failed \footnote{http://clang.debian.net/status.php?version=5.0}
-  \end{itemize}
-  \item Compile kernel with Clang?
-  \item Which OpenCL implementation?
-  \begin{itemize}
-    \item {\fontfamily{qcr}\selectfont Clover}: part of Mesa. OpenCL 1.1 Supported, missing some OpenCL 1.2 functions
-    \item {\fontfamily{qcr}\selectfont pocl}: many CPUs, ASIPs (TCE/TTA), NVIDIA GPUs (via CUDA). Approaching OpenCL 1.2 completeness in 2017
-    \item {\fontfamily{qcr}\selectfont Beignet}: intel GPUs. Passed conformance for 1.2 in 2015, nearly complete OpenCL 2.0 in 2017
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{LLVM/Clang integration to Buildroot - Existing work}
-\begin{itemize}
-  \item Series of patches by Romain Naour (9)\footnote{[Buildroot] [RFC\ 0/9]
-  Add llvm/clang + openCL}:
-  \begin{itemize}
-    \item package/llvm: new host package
-    \item package/clang: new host package
-    \item package/llvm: enable target variant
-    \item package/llvm: RFC: install llvm-config in staging
-    \item package/clang: enable target variant
-    \item package/llvm: add AMDGPU support
-    \item package/mesa3d: enable llvm support
-    \item package/libclc: new package
-    \item package/mesa3d: enable openCL support
-  \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}
 \frametitle{Available hardware for testing}
 \begin{itemize}
   \item Platform 1 - x86\_64 (HP ProBook)
@@ -294,9 +257,9 @@ Smile \\~\\
   \item Provide LLVM support for AMDGPU (R600 to GCN)
   \item Enable LLVM support for Mesa 3D:
     \begin{itemize}
-      \item Gallium Drivers: llvmpipe, R600, RadeonSI (not tested)
+      \item Gallium Drivers: llvmpipe, R600, RadeonSI
     \end{itemize}
-  \item Provide Clang
+  \item Add Clang
   \item Activate OpenCL
   \begin{itemize}
     \item AMD GPUs (Clover)
@@ -459,14 +422,96 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
 \begin{frame}
 \frametitle{Clang packaging for Buildroot}
 \begin{itemize}
-
+  \item host-clang is needed to compile libclc
+  \begin{itemize}
+    \item Many functions writen in LLVM IR (.ll)
+  \end{itemize}
+  \item It is normally built inside LLVM source tree (llvm/tools) but Buildroot
+  uses per-package build directories.
+  \begin{itemize}
+    \item Some more tweaks are needed
+  \end{itemize}
+  \item Binaries, headers and some scripts must be removed from the target.
+  \begin{itemize}
+    \item Only libclang.so is necessary.
+  \end{itemize}
+  \item The main problem: \textbf{dynamic linking}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{libclc packaging for Buildroot}
 \begin{itemize}
+  \item Builtin functions defined in the OpenCL 1.1 specification
+  \begin{itemize}
+    \item sin, cos, min, max, etc.
+  \end{itemize}
+  \item LLVM IR bitcode
+  \item Also provides headers needed to compile OpenCL kernels by
+  calling {\fontfamily{qcr}\selectfont clCreateProgramWithSource}
+  \item Main problem: Buildroot removes {\fontfamily{qcr}\selectfont /usr/include}
+  from the target filesystem
+\end{itemize}
+\end{frame}
 
+\begin{frame}
+\frametitle{Testing Clover: Piglit}
+\begin{figure}
+\includegraphics[width=0.9\linewidth]{img/html_output.png}
+\end{figure}
+\centering
+\begin{tabular}{c|c|c|c|c}
+Total & Skip & Pass & Fail & Crash \\
+\hline
+704 & \color{blue}{94} & \color{green}{541} & \color{red}{60} & 9
+\end{tabular}
+\end{frame}
+
+\begin{frame}
+\frametitle{Bonus: OpenCL for VideoCore IV (Raspberry Pi)}
+\begin{itemize}
+  \item VC4CL Project: OpenCL 1.2 EMBEDDED PROFILE
+  \begin{itemize}
+    \item VC4C: compiles OpenCL kernels into machine code.
+    \item VC4CLStdLib: platform-specific implementation of the OpenCL C standard
+    library.
+  \end{itemize}
+  \item VC4C calls Clang driver (binary) instead of linking against libclang.so
+  \begin{itemize}
+    \item Buildroot does not allow a compiler to be installed on the target
+  \end{itemize}
+  \item Kernel compilation is extremely slow on the target.\\
+  \textbf{Solution:} compile kernels to LLVM IR bitcode on the host with host-clang and
+  call {\fontfamily{qcr}\selectfont clCreateProgramWithBinary} instead of
+  {\fontfamily{qcr}\selectfont clCreateProgramWithSource}
+  \begin{itemize}
+    \item Attention: code must be device-specific
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{LLVM/Clang for Buildroot - Current State}
+\begin{itemize}
+  \item Commited to Buildroot's master:
+  \begin{itemize}
+    \item LLVM package \checkmark
+    \item LLVM support for Mesa 3D \checkmark
+    \item Clang package \checkmark
+    \begin{itemize}
+      \item Currently working on improvements
+    \end{itemize}
+  \end{itemize}
+  \item Patchs sent to the mailing list:
+  \begin{itemize}
+    \item libclc package
+    \item OpenCL support for AMD GPUs
+  \end{itemize}
+  \item TODO
+  \begin{itemize}
+    \item Add OpenCL support for already existing packages
+    \item Add new packages that depend on LLVM
+  \end{itemize}
 \end{itemize}
 \end{frame}
 
