@@ -217,6 +217,7 @@ Smile \\~\\
 %-------------------------------------------------------
 \section{LLVM/Clang integration to Buildroot}
 
+\iffalse
 \begin{frame}
 \frametitle{LLVM/Clang integration to Buildroot - What does it enable?}
 \begin{itemize}
@@ -227,6 +228,25 @@ Smile \\~\\
   \item OpenSWR for scientific visualization (AVX, AVX2)
   \item Most OpenCL implementations rely on LLVM
 \end{itemize}
+\end{frame}
+\fi
+
+\begin{frame}
+\frametitle{Project planning}
+\begin{enumerate}
+  \item Provide LLVM support for x86, ARM and AArch64
+  \item Provide LLVM support for AMDGPU (R600 to GCN)
+  \item Enable LLVM support for Mesa 3D:
+    \begin{itemize}
+      \item Gallium Drivers: llvmpipe, R600, RadeonSI
+    \end{itemize}
+  \item Add Clang
+  \item Activate OpenCL
+  \begin{itemize}
+    \item AMD GPUs (Clover)
+    \item Broadcom Videocore IV (VC4CL)
+  \end{itemize}
+\end{enumerate}
 \end{frame}
 
 \begin{frame}
@@ -250,24 +270,7 @@ Smile \\~\\
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Project planning}
-\begin{enumerate}
-  \item Provide LLVM support for x86, ARM and AArch64
-  \item Provide LLVM support for AMDGPU (R600 to GCN)
-  \item Enable LLVM support for Mesa 3D:
-    \begin{itemize}
-      \item Gallium Drivers: llvmpipe, R600, RadeonSI
-    \end{itemize}
-  \item Add Clang
-  \item Activate OpenCL
-  \begin{itemize}
-    \item AMD GPUs (Clover)
-    \item Broadcom Videocore IV (VC4CL)
-  \end{itemize}
-\end{enumerate}
-\end{frame}
-
+\iffalse
 \begin{frame}
 \frametitle{LLVM package - Directory Layout}
 \begin{itemize}
@@ -295,6 +298,7 @@ Smile \\~\\
   \end{itemize}
 \end{itemize}
 \end{frame}
+\fi
 
 \begin{frame}
 \frametitle{LLVM package}
@@ -365,12 +369,14 @@ Smile \\~\\
   \end{tabular}
 \end{frame}
 
+\iffalse
 \begin{frame}
 \frametitle{Selecting llvmpipe}
 \begin{figure}
 \includegraphics[width=1\linewidth]{img/mesa_swrast.png}
 \end{figure}
 \end{frame}
+\fi
 
 \begin{frame}
 \frametitle{OpenCL}
