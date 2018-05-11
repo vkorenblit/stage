@@ -1,10 +1,10 @@
-\documentclass{beamer}
+\documentclass{smilebeamer}
 
 \mode<presentation> {
 \usetheme{default}
 }
 
-
+\iffalse
 \setbeamertemplate{footline}
 {%
   \leavevmode%
@@ -19,6 +19,7 @@
   \end{beamercolorbox}}%
   \vskip0pt%
 }
+\fi
 
 \setbeamertemplate{enumerate items}[default]
 \usepackage{wasysym}
@@ -206,7 +207,8 @@ Smile \\~\\
   C/C++ Compiler & clang & gcc \\
   Assembler & cc1as & as \\
   Linker & lld & ld \\
-  RUntime & compiler-rt & libgcc \\
+  Runtime & compiler-rt & libgcc \\
+  Debugger & lldb & gdb \\
   Unwinder & libunwind & libgcc\_s \\
   C++ library & libc++abi, libc++ & libsupc++ libstdc++ \\
   Tools & llvm-ar, llvm-as etc. & ar, objdump, etc. \\
