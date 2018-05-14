@@ -1132,6 +1132,63 @@ The final results:
 \end{lstlisting}
 
 \newpage
+\section*{Update - 14 May 2018}
+
+\subsubsection*{Achievements}
+Clang package\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/219824.html}
+was commited to Buildroot's master branch on the $28^{th}$ April. After that date,
+two patches were sent in order to have a clean version of the package. As the
+objective is installing only libclang.so, the first patch removes unnecessary files
+from the target, more specifically the following ones:
+\begin{itemize}
+  \item Binaries in:
+  \begin{itemize}
+    \item /usr/bin
+    \item /usr/libexec
+  \end{itemize}
+  \item Directories:
+  \begin{itemize}
+    \item /usr/lib/clang
+    \item /usr/share/clang
+    \item /usr/share/opt-viewer
+    \item /usr/share/scan-build
+    \item /usr/share/scan-view
+  \end{itemize}
+  \item Manual
+  \begin{itemize}
+    \item /usr/share/man/man1/scan-build.1
+  \end{itemize}
+\end{itemize}
+
+The second patch serves to link libclang.so dynamically against libLLVM.so,
+because at the start libclang was linking against LLVM static libraries
+(libLLVMOption.a, libLLVMMCParser.a, libLLVMProfileData.a, etc.), producing duplicated
+code. As Clang is an LLVM tool, it was necessary to set LLVM\_LINK\_LLVM\_DYLIB
+to ON in Clang's Makefile.
+
+\subsubsection*{Final OpenCL series}
+With respect to the v6 series, the following changes were introduced:
+\begin{itemize}
+  \item libclc headers are now installed to /usr/share instead of /usr/local/include.
+  Given that clc headers are being installed to a non-standard location, it was
+  necessary to specify this path in Mesa's configure.ac. Otherwise, pkg-config
+  outputs the absolute path to these headers located in STAGING\_DIR, which causes
+  a runtime error when calling clBuildProgram.
+  \item libclc dependencies on target llvm were removed, as host-clang is the
+  only build dependency.
+  \item OpenCL support for RadeonSI was added.
+\end{itemize}
+\subsection*{PATCH v7}
+The PATCH v7 series\footnote{http://lists.busybox.net/pipermail/buildroot/2018-May/220772.html}
+sent to the Buildroot mailing list on the $4^{th}$ May contains the following
+3 commits:
+\begin{itemize}
+  \item {[PATCH v7 1/3]} package/libclc: new package
+  \item {[PATCH v7 2/3]} package/mesa3d: enable OpenCL support
+  \item {[PATCH v7 3/3]} package/clinfo: new package
+\end{itemize}
+
+\newpage
 \section{Future work}
 
 \end{document}
