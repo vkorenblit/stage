@@ -93,7 +93,7 @@ Smile \\~\\
   \item Some existing backends:
   \begin{itemize}
     \item \textbf{ARM}, ARM64, Hexagon, Mips, Mipsel, NVIDIA PTX 32/64,
-    PowerPC 32/64, \textbf{AMD r600}, Sparc, Thumb, x86, \textbf{x86-64}, XCore
+    PowerPC 32/64, \textbf{AMDGPU}, Sparc, Thumb, x86, \textbf{x86-64}, XCore
   \end{itemize}
 \end{itemize}
 \end{frame}
@@ -235,6 +235,7 @@ Smile \\~\\
 \end{frame}
 \fi
 
+\iffalse
 \begin{frame}
 \frametitle{Project planning}
 \begin{enumerate}
@@ -252,6 +253,7 @@ Smile \\~\\
   \end{itemize}
 \end{enumerate}
 \end{frame}
+\fi
 
 \begin{frame}
 \frametitle{Available hardware for testing}
@@ -448,6 +450,7 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
 \end{itemize}
 \end{frame}
 
+\iffalse
 \begin{frame}
 \frametitle{libclc packaging for Buildroot}
 \begin{itemize}
@@ -462,6 +465,7 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
   from the target filesystem
 \end{itemize}
 \end{frame}
+\fi
 
 \begin{frame}
 \frametitle{Testing Clover: Piglit}
@@ -507,9 +511,6 @@ Total & Skip & Pass & Fail & Crash \\
     \item LLVM package \checkmark
     \item LLVM support for Mesa 3D \checkmark
     \item Clang package \checkmark
-    \begin{itemize}
-      \item Currently working on improvements
-    \end{itemize}
   \end{itemize}
   \item Patchs sent to the mailing list:
   \begin{itemize}
