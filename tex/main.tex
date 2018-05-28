@@ -109,7 +109,53 @@
 
 \newpage
 \section{LLVM}
+
+This section presents LLVM, an open source project that provides a set of
+low level toolchain components (assemblers, compilers, debuggers, etc.) which
+are designed to be compatible with existing tools typically used on Unix
+systems. While LLVM provides some unique capabilities and is known for some of
+its tools, such as the Clang compiler (C/C++/Objective-C compiler which provides
+a number of benefits with respect to the GCC compiler), the main thing that
+distinguishes LLVM from other compilers is its internal architecture.
+
 \subsection{The project}
+
+The LLVM (Low Level Virtual Machine) project started in the year 2000 as a result
+of a masters thesis \footnote{https://llvm.org/pubs/2002-12-LattnerMSThesis.html}
+written by Chris Lattner at the University of Illinois. This project is different
+from most traditional compiler projects (such as GCC) because it is not just a
+collection of individual programs, but rather a collection of libraries that
+can be used to build compilers, optimizers, JIT code generators and other
+compiler-related programs. LLVM is an umbrella project, which means that it has
+several subprojects, such as LLVM Core (maing libraries), Clang, lldb, compiler-rt,
+libclc, and lld among others.\\\\
+From the start, LLVM was conceived as an API which provides a compiler
+infrastructure written in C++, focusing on compile time and performance
+of the generated code. Thanks to this object-oriented design combined with a
+complete documentation, it is easy to integrate LLVM components into third-party
+projects, and this is in fact the key of the success achieved by this project.\\\\
+Nowadays, LLVM is being used as a base platform to enable the implementation of
+statically and runtime compiled programming languages, such as C/C++, Java,
+Kotlin, Rust and Swift. This is possible because of LLVM's internal structure
+implements many of the common structures and patterns found in most programming
+languages, allowing developers to focus only on the particular aspects.\\\\
+Many big companies are using LLVM technology in their products, being Apple and
+Google the main supporters of the project. Below there are some examples:
+\begin{itemize}
+  \item Apple:
+  \begin{itemize}
+    \item All operating systems built with Clang
+    \item Xcode IDE uses Clang compiler and static analyzer by default
+    \item Swift uses LLVM as its compiler framework
+  \end{itemize}
+  \item Google:
+  \begin{itemize}
+    \item Builds Android user space and Chrome for all platforms with Clang
+    \item Android Renderscript compiler is based on LLVM
+    \item Kotlin programming language compiles directly to native code via LLVM
+  \end{itemize}
+\end{itemize}
+
 \subsection{Internal aspects}
 \subsection{Clang}
 
