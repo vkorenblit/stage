@@ -9,6 +9,7 @@
 \usepackage{multicol}
 \usepackage{textcomp}
 \usepackage{abstract}
+\usepackage{parcolumns}
 \renewcommand{\abstractnamefont}{\normalfont\Large\bfseries}
 \graphicspath{{img/}}
 
@@ -120,10 +121,11 @@ distinguishes LLVM from other compilers is its internal architecture.
 
 \subsection{The project}
 
-The LLVM (Low Level Virtual Machine) project started in the year 2000 as a result
-of a masters thesis \footnote{https://llvm.org/pubs/2002-12-LattnerMSThesis.html}
-written by Chris Lattner at the University of Illinois. This project is different
-from most traditional compiler projects (such as GCC) because it is not just a
+The LLVM (used to be an acronym of Low Level Virtual Machine but not anymore)
+project started in the year 2000 as a result of a masters thesis
+\footnote{https://llvm.org/pubs/2002-12-LattnerMSThesis.html} written by Chris
+Lattner at the University of Illinois. This project is different from most
+traditional compiler projects (such as GCC) because it is not just a
 collection of individual programs, but rather a collection of libraries that
 can be used to build compilers, optimizers, JIT code generators and other
 compiler-related programs. LLVM is an umbrella project, which means that it has
@@ -156,7 +158,174 @@ Google the main supporters of the project. Below there are some examples:
   \end{itemize}
 \end{itemize}
 
+However, LLVM is not only being used as a traditional C/C++ toolchain but is
+gaining popularity in graphics. Such is the case of:
+\begin{itemize}
+  \item llvmpipe (software rasterizer)
+  \item GLSL (LunarGLASS)
+  \item AMDGPU open source drivers
+  \item Most of OpenCL implementations are based on Clang/LLVM
+\end{itemize}
+
 \subsection{Internal aspects}
+
+Modern compiler design normally follows a three-phase approach, where the main
+components are: the frontend, the optimizer and the backend. Each phase is
+responsible for translating the input program into a different representation,
+making it closer to the target language. LLVM follows this approach and provides
+the optimizer and some backends, while frontends such as Clang live in separate
+projects. This sections describes each of these 3 components and highlights the
+main advantages of working with this model, focusing on LLVM IR (Intermediate
+Representation).
+
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.8]{img/three_phase.png}
+  \caption{Three-phase compiler}
+  \label{fig:three_phase}
+\end{figure}
+
+\subsubsection{Frontend}
+
+The frontend is the component in charge of validating the input source code,
+checking and diagnosing errors, and translating it in from its original language
+(eg. C/C++) to an intermediate representation (LLVM IR in this case) by doing
+lexical, syntactical and semantic analysis. Apart from doing the translation,
+the frontend can also perform optimizations that are language-specific.
+
+\subsubsection{LLVM IR}
+
+The LLVM IR is a complete virtual instruction set used throughout all phases
+of the LLVM compilation strategy, and has the main following characteristics:
+\begin{itemize}
+  \item Mostly architecture-independent instruction set (RISC)
+  \item Strongly typed
+  \begin{itemize}
+    \item Single value types (eg. i8, i32, double)
+    \item Pointer types (eg. *i8, *i32)
+    \item Array types, structure types, function types, etc.
+  \end{itemize}
+  \item Unlimited number of virtual registers in Static Single Assignment (SSA)
+  \item Memory partitioned into global area, stack and heap
+  \item Most operations are in three-address form
+\end{itemize}
+Intermediate Representation is the core of LLVM. It is fearly readable, as
+it was designed in a way that is easy for the frontends to generate but
+expressive enough to allow effective optimizations that produce fast code for
+real targets. This intermediate representation exists in three forms: a textual
+human-readable assembly format (.ll), an in-memory data structure and an on-disk
+binary "bitcode format" (.bc). LLVM provides tools to convert from from textual
+format to bitcode (llvm-as) and viceversa (llvm-dis). Below is an example of how
+LLVM IR looks like:\\
+
+\noindent\begin{minipage}{.25\textwidth}
+\begin{lstlisting}[language=C,caption={C example},captionpos=b,showstringspaces=false]
+int sum(int a, int b)
+{
+	return a+b;
+}
+
+int main()
+{
+	sum(1,2);
+	return 0;
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.68\textwidth}
+\begin{lstlisting}[language=C,caption={Equivalent code in LLVM IR},captionpos=b,showstringspaces=false, keywords={i32,align,define}]
+; ModuleID='main.c'
+source_filename="main.c"
+target datalayout="e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple="x86_64-buildroot-linux-gnu"
+
+; Function Attrs: noinline nounwind optnone uwtable
+define i32 @sum(i32, i32) #0 {
+  %3 = <@\textcolor{magenta}{alloca}@> i32, align 4
+  %4 = <@\textcolor{magenta}{alloca}@> i32, align 4
+  <@\textcolor{magenta}{store}@> i32 %0, i32* %3, align 4
+  <@\textcolor{magenta}{store}@> i32 %1, i32* %4, align 4
+  %5 = <@\textcolor{magenta}{load}@> i32, i32* %3, align 4
+  %6 = <@\textcolor{magenta}{load}@> i32, i32* %4, align 4
+  %7 = <@\textcolor{magenta}{add}@> nsw i32 %5, %6
+  <@\textcolor{magenta}{ret}@> i32 %7
+}
+
+; Function Attrs: noinline nounwind optnone uwtable
+define i32 @main() #0 {
+  %1 = <@\textcolor{magenta}{alloca}@> i32, align 4
+  <@\textcolor{magenta}{store}@> i32 0, i32* %1, align 4
+  %2 = <@\textcolor{magenta}{call}@> i32 @sum(i32 1, i32 2)
+  ret i32 0
+}
+\end{lstlisting}
+\end{minipage}
+
+\subsubsection{Optimizer}
+
+The strategy proposed by LLVM is designed to achieve high performance executables
+through a system of continuous optimization. Because all of the LLVM
+optimizations are modular (called passes), it is possible to use all of them
+or only a subset. There are Analysis Passes and Transformation Passes. The first
+ones compute some information about some IR unit (modules, functions, blocks,
+instructions) without mutating it and produce a result which can be queried
+by other passes. On the other hand, a Transformation Pass transforms a unit of
+IR in some way, leading to a more efficient code (also in IR). It must be noted
+that a transformation pass  may depend on a previous analysis pass but it cannot
+depend on other transformation passes.\\\\
+In general, the two main objectives of the optimization phase are improving the
+execution time of the program and reducing its code size. Every LLVM pass has a
+specific objective, such dead code elimination, constant propagation, combination
+of redundant instructions, dead argument elimination, and many others. The fact
+of using SSA form guarantees that each variable is defined only once, which helps
+a lot when performing this kind of optimizations.\\\\
+The tool provided by LLVM to perform optimizations is called
+{\fontfamily{qcr}\selectfont opt}. It is possible to see all possible optimizations
+by executing {\fontfamily{qcr}\selectfont opt --help}:
+\begin{lstlisting}[language=sh,caption={},captionpos=b,keywords={}]
+-assumption-cache-tracker    - Assumption Cache Tracker
+-atomic-expand               - Expand Atomic instructions
+-barrier                     - A No-Op Barrier Pass
+-basicaa                     - Basic Alias Analysis (stateless AA impl)
+-basiccg                     - CallGraph Construction
+-bdce                        - Bit-Tracking Dead Code Elimination
+-block-freq                  - Block Frequency Analysis
+-bounds-checking             - Run-time bounds checking
+-branch-prob                 - Branch Probability Analysis
+...
+\end{lstlisting}
+
+\subsubsection{Backend}
+This component, also known as code generator, is responsible for translating a
+program in LLVM IR into optimized target-specific assembly. The main tasks
+carried out by the backend are register allocation, instruction selection and
+instruction scheduling. \\\\
+Instruction selection is the process of translating LLVM IR operations into
+instructions available on the target architecture, taking advantage of specific
+hardware features that can lead to more efficient code. Register allocation
+involves mapping variables stored in the IR virtual registers onto real registers
+available in the target architecture, taking into consideration the calling
+convention defined in the ABI. Once these tasks and others such as memory
+allocation and instruction ordering are performed, the backend is ready to emit
+the corresponding assembly code, generating either a text file or an ELF object
+file as output.
+
+\subsubsection{Retargetability}
+
+The main advantage of the three-phase model adopted by LLVM is the possibility of
+reusing components, as the optimizer always works with LLVM IR. This eases the
+task of supporting new languages, as new frontends which generate LLVM IR can be
+developed while reusing the optimizer and backend. On the other hand, it is
+possible to bring support for more target architectures by written a backend
+and reusing the frontend and the optimizer.
+
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.8]{img/targets.png}
+  \caption{Retargetability}
+  \label{fig:targets}
+\end{figure}
+
 \subsection{Clang}
 
 \newpage
