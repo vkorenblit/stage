@@ -162,7 +162,7 @@ However, LLVM is not only being used as a traditional C/C++ toolchain but is
 gaining popularity in graphics. Such is the case of:
 \begin{itemize}
   \item llvmpipe (software rasterizer)
-  \item GLSL (LunarGLASS)
+  \item CUDA (NVIDIA Compiler SDK based on LLVM)
   \item AMDGPU open source drivers
   \item Most of OpenCL implementations are based on Clang/LLVM
 \end{itemize}
@@ -316,7 +316,7 @@ The main advantage of the three-phase model adopted by LLVM is the possibility o
 reusing components, as the optimizer always works with LLVM IR. This eases the
 task of supporting new languages, as new frontends which generate LLVM IR can be
 developed while reusing the optimizer and backend. On the other hand, it is
-possible to bring support for more target architectures by written a backend
+possible to bring support for more target architectures by writing a backend
 and reusing the frontend and the optimizer.
 
 \begin{figure}[H]
@@ -327,6 +327,48 @@ and reusing the frontend and the optimizer.
 \end{figure}
 
 \subsection{Clang}
+
+Clang is an open source compiler frontend for C/C++, Objective-C and OpenCL C
+for LLVM, therefore it can use LLVM's optimizer to produce efficient code. Since
+the start of its development in 2005, Clang has been focused on providing
+expressive diagnostics and an easy IDE integration. As LLVM, it is written in
+C++ and has a library-based architecture, which allows, for example, IDEs to use
+its parser to help developers with autocompletion and refactoring.\\\\
+Clang was designed to offer GCC compatibility, so it accepts most GCC's command
+line arguments to specify the compiler options. However, GCC offers a lot of
+extensions to the standard language while Clang's purpose is being
+standard-compliant. Because of this, Clang cannot be a replacement for GCC when
+compiling projects that depend on GCC extensions, as is the case with Linux kernel.
+In this case, Linux does not build because Clang does not accept the following
+kinds of constructs:
+\begin{itemize}
+  \item Variable length arrays inside structures
+  \item Nested Functions
+  \item Explicit register variables
+\end{itemize}
+Furthermore, Linux kernel still depends on GNU assembler and linker.\\\\
+An interesting feature of Clang is that, as opposed to GCC, it can compile
+for multiple targets from the same binary, that is, it is a cross-compiler itself.
+Clang binary works as a driver, which means that it calls multiple binaries to
+control every phase of the compilation process, as shown in Fig.\ref{fig:clang_driver}:
+
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.75]{img/clang_driver.png}
+  \caption{Clang driver}
+  \label{fig:clang_driver}
+\end{figure}
+To control the target for which the code will be generated, it is necessary to
+specify the target triple in the command line by using the $--target=<triple>$
+option. For example, {\fontfamily{qcr}\selectfont --target=armv7-linux-gnueabihf}
+corresponds to the following system:
+\begin{itemize}
+  \item Architecture: arm
+  \item Sub-architecture: v7
+  \item Vendor:unknown
+  \item OS: linux
+  \item Environment: GNU
+\end{itemize}
 
 \newpage
 \section{Linux graphics stack}
