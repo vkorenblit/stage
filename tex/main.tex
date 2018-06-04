@@ -104,9 +104,92 @@
 
 \newpage
 \section{Buildroot}
+
+Buildroot is an open source build system that allows to build from source some
+or all of the following components of an Embedded Linux System:
+\begin{itemize}
+  \item Cross-compilation toolchain
+  \item Root filesystem
+  \item Bootloader
+  \item Kernel image
+\end{itemize}
+It is based on GNU Make and Kconfig, aiming to provide the user with a tool that
+generates a fully customizable Linux system, easily and in a few minutes. Currently,
+Buildroot supports many architectures, such as x86, ARM, AArch64, MIPS, PowerPC
+and Microblaze among others. There are more than 2200 packages available and the
+documentation explains in detail the process to add new ones.\\\\
+Fig.\ref{fig:menuconfig} shows the how the system can be configured by using
+{\fontfamily{qcr}\selectfont make menuconfig}:
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.5]{img/menuconfig.png}
+  \caption{Buildroot}
+  \label{fig:menuconfig}
+\end{figure}
+
 \subsection{Cross-compilation toolchain}
+
+A toolchain is the set of tools that allows to compile source code into executables
+that can run on a target platform. A standard GNU toolchain consists of four
+main components:
+\begin{itemize}
+  \item Binutils: set of binary utilities such as ld, as, objdump, readelf, etc.
+  \item GNU Compiler Collection (GCC)
+  \item C library: an API that allows user-space applications to
+  interact with the Linux kernel
+  \item Linux kernel headers: they contain definitions and constants needed to
+  access the kernel directly
+\end{itemize}
+Buildroot uses cross-compilation, which means that the build environment is
+separated from the target environment. This approach has many benefits considering
+that the embedded target is generally slower than the host and sometimes it cannot
+even run a compiler. The main advantages are the following:
+\begin{itemize}
+  \item Increasing productivity (host is faster than target)
+  \item Build an application or a complete system for many platforms on the same
+  machine
+  \item Bootstraping a compiler on a new architecture
+\end{itemize}
+Buildroot offers the possibility of building an entire cross-toolchain from
+source or using a pre-compiled one. When choosing the first option, it is possible
+to customize every component of the toolchain: the C library (glibc, uclibc or
+musl), the version of GCC, binutils, kernel headers, and many other options.
+
 \subsection{Packages}
+
+Packages in Buildroot are stored in the {\fontfamily{qcr}\selectfont package}
+directory. Every package consists of at least three files:
+\begin{itemize}
+  \item Config.in: contains the Kconfig code necessary to display the package
+  and its options in the configuration tool. It is important to specify all
+  the dependencies in this file.
+  \item .mk file: a Makefile containing the instructions involved since the
+  source code of the package is downloaded until it is finally installed to the
+  target.
+  \item .hash file: a file containing the hashes of the files downloaded by the
+  package, such as its tarball and the license file.
+  \item Optionally, it is possible to store patches which are applied before
+  configuring the package.
+\end{itemize}
+As packages are based on different build systems, Buildroot offers several
+infrastructures to facilitate the integration of new packages. Among them, there
+are infrastructures for CMake, Autotools and Python-based packages. A generic
+package intrastructure is also available for packages not using any of the more
+common build systems.
+
 \subsection{Contributing to the project}
+
+There are four stable releases of Buildroot every year: in February, May, August
+and November. Each release has a tag with the following format:
+\textless year\textgreater.\textless month\textgreater, being 2018.05 the latest
+release at the time of writing this document. There is one long term support
+release every year, \textless year\textgreater.02, maintained during one year
+with security, bug and build fixes.\\\\
+It is possible to contribute to the project by reviewing, testing and sending
+patches. After a patch is sent, it is discussed with the people on the mailing
+list, which will generally lead to doing some modifications. Finally, if the
+project maintainers consider that the patch is ready to be applied, it is
+commited to its corresponding branch.
 
 \newpage
 \section{LLVM}
