@@ -455,9 +455,82 @@ corresponds to the following system:
 
 \newpage
 \section{Linux graphics stack}
+
+This section intends to give an introduction to the Linux graphics stack in order
+to explain the role of LLVM inside this complex system comprised of many open
+source componentes that interact with each other. Fig. \ref{fig:stack} shows all
+the components involved when 2D and 3D applications require rendering services
+from an AMD GPU:
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.75]{img/stack.png}
+  \caption{Typical Linux open source graphics stack for AMD GPUs}
+  \label{fig:stack}
+\end{figure}
+
+\subsection{X Server}
+
+X Server is a software system that provides 2D rendering services to allow
+applications creating graphical user interfaces. It is based on a client-server
+architecture and exposes its services such as managing windows, displays and
+input devices through two shared libraries called Xlib and XCB. Given that X uses
+network client-server technology, it is not efficient when handling 3D applications
+due to its latency. Because of this, there exists a software system called Direct
+Rendering Infrastructure (DRI) which provides a faster path between applications
+and graphics hardware.
+
 \subsection{The DRI/DRM infrastructure}
-\subsection{OpenGL}
+
+The Direct Rendering Infrastructure is a subsystem that allows applications using
+X Server to communicate with the graphics hardware directly. The most important
+component of DRI is the Direct Rendering Manager, which is a kernel module that
+provides multiple services:
+\begin{itemize}
+  \item Initialization of GPU such as uploading firmwares or setting up DMA areas.
+  \item Kernel Mode Setting(KMS): setting display resolution, colour depth and
+  refresh rate.
+  \item Multiplexing access to rendering hardware among multiple user-space
+  applications.
+  \item Video memory management and security.
+\end{itemize}
+DRM exposes all its services to user-space applications through libdrm. As most
+of these services are device-specific, there are different DRM drivers for each
+GPU, such as libDRM-intel, libDRM-radeon, libDRM-amdgpu, libDRM-nouveau, etc.
+This library is intended to be used by X Server Display Drivers (such as
+xserver-xorg-video-radeon, xserver-xorg-video-nvidia, etc.) and Mesa 3D, which
+provides an open source implementation of the OpenGL specification.
+
 \subsection{Mesa 3D}
+
+OpenGL is a specification that describes an API for rendering 2D and 3D graphics
+by exploiting the capabilities of the underlying hardware. Mesa 3D is a collection
+of open source user-space graphics drivers that implement a translation layer
+between OpenGL and the kernel-space graphics drivers and exposes the OpenGL API
+as libGL.so. Mesa takes advantage of the  DRI/DRM infrastructure to access the
+hardware directly and output its graphics to a window allocated by the X server,
+which is done by GLX, an extension that binds OpenGL to the X Window System.
+\\\\ Mesa provides drivers for multiple drivers for AMD, Nvidia and Intel GPUs
+and also provides some software implementations of 3D rendering, useful for
+platforms that do not have a dedicated GPU. Drivers are divided in two groups:
+Messa Classics and Gallium 3D. The second group is a set of utilities and
+common code that is shared by multiple drivers, such as nouveau (Nvidia),
+RadeonSI (AMD GCN) and softpipe (CPU).\\\\
+As shown in Fig.\ref{fig:mesa_drivers}, LLVM is used by llvmpipe and RadeonSI,
+but it can optionally be used by r600g if OpenCL support is needed. The llvmpipe
+is a multithreaded software rasterizer uses LLVM to do JIT compilation of GLSL shaders.
+Shaders, point/line/triangle rasterization and vertex processing are implemented
+in LLVM IR, which is then translated to machine code. Another much more optimized
+software rasterizer is OpenSWR, which is developed by Intel and targets x86\_64
+processors with AVX or AVX2 capabilities. Both llvmpipe and OpenSWR present a
+much faster alternative to the classic Mesa's single-threaded softpipe.\\\\
+
+\begin{figure}[H]
+\centering
+  \includegraphics[scale=0.70]{img/mesa_drivers.png}
+  \caption{Mesa 3D drivers}
+  \label{fig:mesa_drivers}
+\end{figure}
+
 
 \newpage
 \section{LLVM/Clang integration to Buildroot}
