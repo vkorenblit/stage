@@ -86,10 +86,12 @@
 
 \end{titlepage}
 
+\iffalse
 \begin{abstract}
 
 \end{abstract}
 \newpage
+\fi
 
 \tableofcontents
 
@@ -1600,6 +1602,63 @@ sent to the Buildroot mailing list on the $4^{th}$ May contains the following
   \item {[PATCH v7 2/3]} package/mesa3d: enable OpenCL support
   \item {[PATCH v7 3/3]} package/clinfo: new package
 \end{itemize}
+
+\newpage
+\section*{Update - 15 June 2018}
+
+\subsection*{LLVM/Clang version 5.0.2}
+LLVM and Clang version 5.0.2 were released on the $16^{th}$ May. Both releases are
+API and ABI compatible with 5.0.0 and 5.0.1 and include mitigations for
+CVE-2017-5715\footnote{https://en.wikipedia.org/wiki/Spectre\_(security\_vulnerability)}
+(Spectre Variant 2) for X86 and MIPS. Due to the importance of these bufgixes,
+both patches were applied to Buildroot's master branch:\\\\
+LLVM bumped to version 5.0.2:\\\\
+http://lists.busybox.net/pipermail/buildroot/2018-May/221643.html\\\\
+Clang bumped to version 5.0.2:\\\\
+http://lists.busybox.net/pipermail/buildroot/2018-May/221642.html
+
+\subsection*{Bug fixing}
+
+\subsubsection*{Fix for host-llvm when built with GCC 8}
+
+Autobuild:\\\\
+http://autobuild.buildroot.net/results/824c70e982d8ec7e518cf4db058767df42db6b04\\\\
+Extract from log:
+\begin{lstlisting}[language=sh,keywords={}]
+output/build/host-llvm-5.0.1/include/llvm/ExecutionEngine/
+Orc/OrcRemoteTargetClient.h:722:26: error: could not convert
+'((llvm::orc::remote::OrcRemoteTargetClient<ChannelT>*)this)->
+callB<llvm::orc::remote::OrcRemoteTargetRPCAPI::ReadMem>(Src, Size)'
+from 'Expected<vector<unsigned char,allocator<unsigned char>>>'
+to 'Expected<vector<char,allocator<char>>>'
+return callB<ReadMem>(Src, Size);
+\end{lstlisting}
+Fix:\\\\
+GCC 8.0.1 detects the type mismatch between char and unsigned char and causes the
+compilation to fail. Clang and earlier versions of GCC don't detect the issue.
+This bug was already known
+\footnote{https://bugzilla.redhat.com/show\_bug.cgi?id=1540620} and has been
+fixed upstream in LLVM 6\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-May/221648.html
+\subsubsection*{Fix host-clang binaries}
+Autobuild:\\\\
+This error was detected locally when trying to build libclc\\\\\\
+Extract from log:
+\begin{lstlisting}[language=sh,keywords={}]
+CommandLine Error: Option 'x86-use-base-pointer' registered more than once!
+LLVM ERROR: inconsistency in registered CommandLine options
+\end{lstlisting}
+Fix:\\\\
+Clang binaries are tools, and given that DLLVM\_LINK\_LLVM\_DYLIB is set,
+they are linked against libLLVM.so. The problem is that binaries are
+also linking against some LLVM static libraries, which results in the error
+shown above. However, it is not the same case for libclang, which is also
+a tool but links only against libLLVM.so. To fix this problem,
+LLVM\_DYLIB\_COMPONENTS=all must be added in Clang's Makefile so that binaries
+only link against libLLVM.so and the double symbol definition is eliminated.
+\\\\
+Commit: http://lists.busybox.net/pipermail/buildroot/2018-June/222682.html
+
 
 \newpage
 \section{Future work}
