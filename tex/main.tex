@@ -29,6 +29,9 @@
 \makesavenoteenv{tabular}
 \makesavenoteenv{table}
 
+\usepackage{nomencl}
+\makenomenclature
+\renewcommand{\nomname}{Acronyms}
 
 \begin{document}
 %----------------------------------------------------------------------------------------
@@ -94,6 +97,22 @@
 \fi
 
 \tableofcontents
+
+\newpage
+\nomenclature{ABI}{Application Binary Interface}
+\nomenclature{API}{Application Program Interface}
+\nomenclature{AVX}{Advanced Vector Extensions}
+\nomenclature{ELF}{Executable and Linkable Format}
+\nomenclature{DMA}{Direct Memory Access)}
+\nomenclature{GCC}{GNU Compiler Collection}
+\nomenclature{GCN}{Graphics Core Next}
+\nomenclature{GLSL}{OpenGL Shading Language}
+\nomenclature{JIT}{Just in Time}
+\nomenclature{RISC}{Reduced Instruction Set Computer}
+\nomenclature{SSA}{Static Single Assignment}
+\nomenclature{VC4}{VideoCore IV}
+\nomenclature{WIP}{Work in Progress}
+\printnomenclature
 
 \newpage
 \section{Introduction}
@@ -539,7 +558,7 @@ much faster alternative to the classic Mesa's single-threaded softpipe.\\\\
 
 \section*{Summary}
 The main purpose of this internship is to integrate LLVM/Clang packages to Buildroot.
-This package will activate new functionalities such as enabling llvmpipe software
+These packages will activate new functionalities such as enabling llvmpipe software
 rasterizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
 support for existing packages already present in Buildroot . Once LLVM is present
 on the system, new packages that make use of this infrastructure can be added to
@@ -582,10 +601,10 @@ that only the necessary target backends are built.
 
 \subsubsection*{LLVM makefile}
 In order to cross-compile LLVM for the target, llvm-config and llvm-tblgen tools
-must be installed on the host. In the first patch series, a minimal version of
+must first be compiled for the host. In the first patch series, a minimal version of
 host-llvm containing only these two tools is provided. To do this, most of the
 {\fontfamily{qcr}\selectfont HOST\_LLVM\_CONF\_OPTS} are set to OFF. However,
-this does not avoid building LLVM libraries, which takes around one hour in a
+this does not avoid building LLVM libraries, which takes around one hour on a
 recent machine. To avoid this and build only the necessary tools:\\
 {\fontfamily{qcr}\selectfont HOST\_LLVM\_MAKE\_OPTS = llvm-tblgen llvm-config}\\\\
 Things that need to be considered when cross-compiling LLVM:
@@ -608,7 +627,7 @@ libraries called libLLVM.so, as {\fontfamily{qcr}\selectfont
 -DLLVM\_BUILD\_LLVM\_DYLIB} is set to ON.\\\\
 One important step in the process is the fact of replacing llvm-config in STAGING\_DIR
 by its host variant. This is because llvm-config compiled for the target cannot
-run on the host, and this is needed to build applications that use LLVM libraries,
+run on the host, and it is needed to build applications that use LLVM libraries,
 as it prints the compiler flags, linker flags and object libraries needed to link
 against LLVM.
 
@@ -617,7 +636,7 @@ Currently, Mesa 3D is linking against LLVM libraries statically. When setting th
 option {\fontfamily{qcr}\selectfont MESA3D\_CONF\_OPTS += --enable-llvm-shared-libs},
 the build fails because it cannot find LLVM libraries. Apparently, the problem is
 that llvm-config placed in STAGING\_DIR is not working properly, as it provides
-the following outputs to this commands:
+the following output to this commands:
 \begin{itemize}
   \item {\fontfamily{qcr}\selectfont./llvm-config --shared-mode\\
         static}
@@ -628,10 +647,11 @@ the following outputs to this commands:
         libLLVMLTO.a libLLVMPasses.a libLLVMObjCARCOpts.a...}
 \end{itemize}
 Even if llvm-config returns the correct lib directory, it assumes it has to use
-LLVM static libraries, and as the configure script from Mesa 3D calls llvm-config
---link-shared --libs (in case --enable-shared-libs is activated) the build
-will fail. Mesa's configure script clearly states that llvm-config may not give
-the correct output when LLVM is build as a single shared library.
+LLVM static libraries, and as the configure script from Mesa 3D calls
+{\fontfamily{qcr}\selectfont llvm-config --link-shared --libs} (in case
+{\fontfamily{qcr}\selectfont --enable-shared-libs} is activated) the build
+fails. Mesa's configure script clearly states that llvm-config may not give
+the correct output when LLVM is built as a single shared library.
 
 \subsection*{Achievements}
 At this date, llvmpipe was successfully tested on the following systems:
@@ -654,7 +674,6 @@ llvmpipe with respect to softpipe.
 Some benchmarks were run to compare llvmpipe against the classic softpipe software
 rasterizer and the AMD Radeon HD6480. Table \ref{tab:glmark2_x86} shows how much
 the LLVM code optimizer improves the performance for rendering:
-
 \begin{table}[h!]
   \begin{center}
     \caption{Results of GLMark2 and GLMark2-es2 benchmarks on x86\_64}
@@ -669,12 +688,11 @@ the LLVM code optimizer improves the performance for rendering:
   \end{center}
 \end{table}
 
-
+\newpage
 \subsubsection*{ARM}
 In order to test LLVM for ARM architecture, Raspberry Pi 2 and Raspberry Pi 3
 development boards were used. For the case of the Raspberry Pi 3, the 32-bit
 defconfig was selected.
-
 \begin{table}[h!]
   \begin{center}
     \caption{Raspberry Pi 2 and 3 Hardware Specifications}
@@ -710,7 +728,8 @@ obtained:\\\\
   \end{center}
 \end{table}
 Table \ref{tab:glmark2_ARM} shows an improvement in rendering when LLVM is used,
-and also the higher computing power of the Cortex-A53 microprocessor.
+and also the higher computing power of the Cortex-A53 microprocessor with
+respect to the Cortex-A7.
 
 \subsubsection*{AArch64}
 Buildroot offers a defconfig to install a 64-bit system on the Raspberry Pi 3
@@ -744,25 +763,21 @@ respect to the 32-bit version:
       \item Set gpu\_mem/gpu\_mem\_1024 to 256 in config.txt
       \item Add dtoverlay=vc4-kms-v3d to config.txt
     \end{itemize}
-
-    This steps allows to load the VC4 driver correctly, however it is not yet
-    working well with X. When trying to execute any {\fontfamily{qcr}\selectfont
-    glx} command, such as {\fontfamily{qcr}\selectfont glxinfo} or
-    {\fontfamily{qcr}\selectfont glxgears}, it returns the following error:\\\\
-    {\fontfamily{qcr}\selectfont Error: couldn't find RGB GLX visual or fbconfig}
-
-    Possible causes:
-    \begin{itemize}
-      \item Mesa is not installing libglx.so in {\fontfamily{qcr}\selectfont
-      /usr/lib/xorg/modules/extensions/}.
-      \item Mesa 3D package in Buildroot states that a vanilla kernel 4.5+ must
-      be used with Gallium VC4 (defconfig uses kernel from raspberrypi's Github).
-      However, even in this case or using Eric Anholt's kernel\footnote{https://github.com/anholt/mesa/wiki/VC4-complete-Raspbian-upgrade}
-      the error persists.
-    \end{itemize}
-
-
-\end {itemize}
+  \end{itemize}
+These steps allow to load the VC4 driver correctly, however it is not yet
+working well with X. When trying to execute any {\fontfamily{qcr}\selectfont
+glx} command, such as {\fontfamily{qcr}\selectfont glxinfo} or
+{\fontfamily{qcr}\selectfont glxgears}, it returns the following error:\\\\
+{\fontfamily{qcr}\selectfont Error: couldn't find RGB GLX visual or fbconfig}\\\\
+Possible causes:
+\begin{itemize}
+  \item Mesa is not installing libglx.so in {\fontfamily{qcr}\selectfont
+  /usr/lib/xorg/modules/extensions/}.
+  \item Mesa 3D package in Buildroot states that a vanilla kernel 4.5+ must
+  be used with Gallium VC4 (defconfig uses kernel from raspberrypi's Github).
+  However, even in this case or using Eric Anholt's kernel\footnote{https://github.com/anholt/mesa/wiki/VC4-complete-Raspbian-upgrade}
+  the error persists.
+\end{itemize}
 
 \subsection*{Next steps}
 \begin{itemize}
@@ -814,6 +829,9 @@ sent to the Buildroot mailing list on the $9^{th}$ March contains the following
   \item {[PATCH v3 5/6]} package/llvm: enable ARM
   \item {[PATCH v3 6/6]} package/llvm: enable AArch64
 \end{itemize}
+This series provides LLVM backends for x86, ARM, AArch64 and AMDGPU (R600 to
+GCN). With respect to the previous version, host-llvm is entirely built because
+of the reasons explained above.
 
 \newpage
 \section*{Update - 29 March 2018}
@@ -821,7 +839,7 @@ sent to the Buildroot mailing list on the $9^{th}$ March contains the following
 \subsection*{New series to enable OpenCL}
 Once LLVM was tested working on the three more common architectures (x86, ARM and
 Aarch64), the next goal was activating OpenCL support. This task involved
-multiple steps, as there are many dependencies that need to be satisfied.\\\\
+multiple steps, as there are many dependencies which need to be satisfied.\\\\
 OpenCL is an API enabling general purpose computing on GPUs (GPGPU) and other
 devices (CPUs, DSPs, FPGAs, ASICs, etc.), being well suited for certain kinds of
 parallel computations, such as hash cracking (SHA, MD5, etc.), image processing and
@@ -832,7 +850,7 @@ OpenCL presents itself as a library with a simple interface:
   \item The OpenCL library (libOpenCL.so), which is a collection of types and
   functions which all conforming implementations must provide.
 \end{itemize}
-The standard is made to provide many OpenCL platforms on one system, and each
+The standard is made to provide many OpenCL platforms on one system, where each
 platform can see various devices. Each device has certain compute characteristics
 (number of compute units, optimal vector size, memory limits, etc). The OpenCL
 standard allows to load OpenCL kernels which are pieces of C99-like code that is
@@ -845,7 +863,7 @@ There are multiple open source OpenCL implementations for Linux:
   \item \textbf{Clover (Computing Language over Gallium)}\\\\
   It is a hardware independent OpenCL API implementation that works with Gallium
   Drivers (hardware dependent userspace GPU drivers) which was merged into Mesa 3D
-  in 2012. It currently supports OpenCL 1.1 and it is close to 1.2 It has the
+  in 2012. It currently supports OpenCL 1.1 and it is close to 1.2. It has the
   following dependencies:
     \begin{itemize}
       \item \textbf{libclang}: provides an OpenCL C compiler frontend and generates LLVM IR.
@@ -863,7 +881,7 @@ There are multiple open source OpenCL implementations for Linux:
   off-tree targets. It also works with libclang and libLLVM but it has its own
   Pocl Builtin Lib (instead of using libclc).
   \item \textbf{Beignet}\\\\
-  It targets Intel GPUs (HD and Iris) starting with Ivy Bridge, and offering
+  It targets Intel GPUs (HD and Iris) starting with Ivy Bridge, and offers
   OpenCL 2.0 support for Skylake, Kaby Lake and Apollo Lake.
   \item \textbf{ROCm}\\\\
   This implementation by AMD targets ROCm (Radeon Open Compute) compatible
@@ -918,8 +936,8 @@ each other.
 \end{figure}
 
 \subsubsection*{Clang for host}
-The first step was providing Clang frontend for the host, as it is necessary for
-building libclc because this library is written in OpenCL C and some functions
+The first step was providing Clang package for the host, as it is necessary to
+build libclc because this library is written in OpenCL C and some functions
 are implemented directly in LLVM IR. Clang will transform .cl and .ll source
 files into LLVM IR bitcode (.bc) by calling llvm-as (the LLVM assembler).\\\\
 Regarding the Makefile for building host-clang, the path to host's llvm-config
@@ -928,8 +946,8 @@ tool inside LLVM's tree (LLVM\_SOURCE\_TREE/tools/clang) but Buildroot manages
 packages individually, so Clang's code source cannot be downloaded inside LLVM's
 tree.\\\\
 Having Clang installed on the host is not only useful for building libclc, it
-provides an alternative to GCC, what enables the possibility of creating a new
-toolchain based on it.
+also provides an alternative to GCC, which enables the possibility of creating
+a new toolchain based on it.
 
 \newpage
 \subsubsection*{Clang for target}
@@ -955,8 +973,8 @@ following ones:
   When Clang was built for the host, it generated multiple static libraries
   (libclangAST.a, libclangFrontend.a, libclangLex.a, etc.) and finally a shared
   object (libclang.so) containing all of them. However, when building for the
-  target, it generated multiple shared libraries and finally libclang.so. This
-  resulted in the following error when trying to use tools that link with
+  target, it produced multiple shared libraries and finally libclang.so. This
+  resulted in the following error when trying to use software that links against
   libOpenCL, which statically links with libclang (e.g, clinfo):\\\\
   {\fontfamily{qcr}\selectfont
   \$ CommandLine Error: Option 'track-memory' registered more than once!\\
@@ -1020,12 +1038,12 @@ main purposes of it are:
   cannot find any platform or devices (or fails to load the OpenCL dispatcher
   library), chances are high no other OpenCL application will run.
   \item Verifying that the OpenCL development environment is set up correctly:
-  if clinfo fails to build, chances are high no other OpenCL application will
+  if clinfo fails to build, chances are high that no other OpenCL application will
   build.
-  \item Reporting the actual properties of the available device(s).
+  \item Reporting the actual properties of the available devices.
 \end{itemize}
 Once installed on the target, clinfo successfully found Clover and the devices
-available to work with it, providing the following output:\\
+available to work with, providing the following output:\\
 \begin{lstlisting}[language=sh,caption={Output of clinfo},captionpos=b,keywords={}]
 Number of platforms                   1
 Platform Name                         Clover
@@ -1060,8 +1078,8 @@ The goal of this project is to help improving the quality of open source OpenGL 
 OpenCL drivers by providing developers with a simple means to perform regression
 tests.\\\\
 Once Clover was installed on the target system, it was decided to run Piglit in
-order to verify Mesa's OpenCL implementation conformance, taking the Buildroot
-packaging from Romain Naour's series
+order to verify Mesa's OpenCL implementation conformance, taking the packaging
+for Buildroot from Romain Naour's series
 \footnote{http://lists.busybox.net/pipermail/buildroot/2018-February/213601.html}:
 \begin{itemize}
   \item {[PATCH v2 1/3]} package/python-numpy: add host variant for piglit
@@ -1126,6 +1144,10 @@ sent to the Buildroot mailing list on the $29^{th}$ March contains the following
   \item {[PATCH v4 10/11]} package/mesa3d: enable OpenCL support
   \item {[PATCH v4 11/11]} package/clinfo: new package
 \end{itemize}
+This series presents some improvements of the patches sent in the previous version
+and adds the necessary packages to enable OpenCL support for AMD GPUs: Clang and
+libclc. Clinfo package is also included in this series as it is a means to check
+whether Clover is correctly set up.
 
 \newpage
 \section*{Update - 13 April 2018}
@@ -1173,10 +1195,10 @@ were commited to Buildroot's master branch on the $4^{th}$ April.
 Thanks to Buildroot autobuilders\footnote{http://autobuild.buildroot.org/} it was
 possible to detect some bugs that were not found during development. These
 autobuilders are machines that select a target architecture, a toolchain, some
-packages randomly and try to build that configuration. There is a daily report
+packages randomly and try to build the configuration. There is a daily report
 containing the results of the autobuilders that shows which packages failed to
 build for a particular configuration. It is also possible to analyze the build
-log and the .config so that bugs can be corrected quickly.
+log and the .config file so that bugs can be quickly corrected.
 
 \subsubsection*{GCC Bug 64735}
 Autobuild:\\\\
@@ -1254,7 +1276,7 @@ error while loading shared libraries: libc.so.0: cannot open shared object
 file: No such file or directory
 \end{lstlisting}
 Fix:\\\\
-In this case, Mesa 3D failed to build because it could not execute correctly
+In this case, Mesa 3D failed to build because it could not correctly execute
 llvm-config. The problem is the following: llvm-config (host version installed in
 STAGING\_DIR) is not being able to link correctly with the libc of the host system.
 This happens in the following scenario: target architecture = host architecture
@@ -1333,7 +1355,7 @@ power of 24 GFLOPs, which comes out from the following equation:\\\\
 
 \subsubsection*{VC4CL}
 There is an open source project called VC4CL\footnote{https://github.com/doe300/VC4CL/wiki}
-that provides an implementation that supports the EMBEDDED PROFILE (trimmed
+which provides an implementation that supports the EMBEDDED PROFILE (trimmed
 version of the default FULL PROFILE) of the OpenCL 1.2 standard for the VideoCore
 IV GPU. This implementation consists of:
 \begin{itemize}
@@ -1552,7 +1574,7 @@ The final results:
 \subsubsection*{Achievements}
 Clang package\footnote{http://lists.busybox.net/pipermail/buildroot/2018-April/219824.html}
 was commited to Buildroot's master branch on the $28^{th}$ April. After that date,
-two patches were sent in order to have a clean version of the package. As the
+two patches were sent in order to have a cleaner version of the package. As the
 objective is installing only libclang.so, the first patch removes unnecessary files
 from the target, more specifically the following ones:
 \begin{itemize}
@@ -1581,7 +1603,7 @@ because at the start libclang was linking against LLVM static libraries
 code. As Clang is an LLVM tool, it was necessary to set LLVM\_LINK\_LLVM\_DYLIB
 to ON in Clang's Makefile.
 
-\subsubsection*{Final OpenCL series}
+\subsubsection*{Improved OpenCL series}
 With respect to the v6 series, the following changes were introduced:
 \begin{itemize}
   \item libclc headers are now installed to /usr/share instead of /usr/local/include.
