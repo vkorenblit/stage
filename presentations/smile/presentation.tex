@@ -20,7 +20,7 @@
   \vskip0pt%
 }
 \fi
-
+\setbeamertemplate{footline}[frame number]
 \setbeamertemplate{enumerate items}[default]
 \usepackage{wasysym}
 \usepackage{graphicx}
@@ -200,6 +200,7 @@ Smile \\~\\
 \end{itemize}
 \end{frame}
 %-------------------------------------------------------
+\iffalse
 \section{Compiling Linux with Clang}
 
 \begin{frame}
@@ -221,8 +222,9 @@ Smile \\~\\
   \item glibc\footnote{https://sourceware.org/glibc/wiki/GlibcMeetsClang} ?
 \end{itemize}
 \end{frame}
-
+\fi
 %-------------------------------------------------------
+\iffalse
 \section{Toolchain components}
 \begin{frame}
 \frametitle{Toolchain components}
@@ -241,13 +243,13 @@ Smile \\~\\
   C library & - & libc \\
   \end{tabular}
 \end{frame}
-
+\fi
 %-------------------------------------------------------
 \section{LLVM/Clang integration to Buildroot}
 
 
 \begin{frame}
-\frametitle{LLVM/Clang integration to Buildroot - What does it enable?}
+\frametitle{LLVM/Clang integration to Buildroot - Why?}
 \begin{itemize}
   \item Gallium llvmpipe driver: software rasterizer that uses LLVM to do runtime code generation
   \begin{itemize}
@@ -300,7 +302,7 @@ Smile \\~\\
 \end{itemize}
 \end{frame}
 
-
+\iffalse
 \begin{frame}
 \frametitle{LLVM package - Directory Layout}
 \begin{itemize}
@@ -328,7 +330,7 @@ Smile \\~\\
   \end{itemize}
 \end{itemize}
 \end{frame}
-
+\fi
 
 \begin{frame}
 \frametitle{LLVM package}
@@ -399,14 +401,14 @@ Smile \\~\\
   \end{tabular}
 \end{frame}
 
-
+\iffalse
 \begin{frame}
 \frametitle{Selecting llvmpipe}
 \begin{figure}
 \includegraphics[width=1\linewidth]{img/mesa_swrast.png}
 \end{figure}
 \end{frame}
-
+\fi
 
 \begin{frame}
 \frametitle{OpenCL}
@@ -455,7 +457,7 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
 \end{figure}
 \end{frame}
 
-
+\iffalse
 \begin{frame}
 \frametitle{Clang packaging for Buildroot}
 \begin{itemize}
@@ -474,9 +476,9 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
   \end{itemize}
 \end{itemize}
 \end{frame}
+\fi
 
-
-
+\iffalse
 \begin{frame}
 \frametitle{libclc packaging for Buildroot}
 \begin{itemize}
@@ -491,6 +493,7 @@ ROCm OpenCL & 1.2 & AMD\footnote{ROCm compatible hardware}\\
   from the target filesystem
 \end{itemize}
 \end{frame}
+\fi
 
 
 \begin{frame}
@@ -532,11 +535,11 @@ Total & Skip & Pass & Fail & Crash \\
 \begin{frame}
 \frametitle{LLVM/Clang for Buildroot - Current State}
 \begin{itemize}
-  \item Commited to Buildroot's master:
+  \item Available in Buildroot 2018.05:
   \begin{itemize}
-    \item LLVM package \checkmark
+    \item LLVM package (version 6.0.0)\checkmark
     \item LLVM support for Mesa 3D \checkmark
-    \item Clang package \checkmark
+    \item Clang package (version 6.0.0)\checkmark
   \end{itemize}
   \item Patchs sent to the mailing list:
   \begin{itemize}
