@@ -26,7 +26,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{dirtytalk}
-\usepackage{tikzsymbols}
+%\usepackage{tikzsymbols}
 
 \graphicspath{{img/}}
 
@@ -165,6 +165,9 @@ Smile \\~\\
   \item Frontend C/C++, Objective C/C++ and OpenCL C for LLVM
   \item Clear and concise diagnostics (error and warning messages)
   \item Natively a cross-compiler: {\fontfamily{qcr}\selectfont -target <triple>}
+  \begin{itemize}
+    \item e.g. arm-linux-gnueabihf
+  \end{itemize}
   \item Sanitizers
   \item Goals
   \begin{itemize}
@@ -364,7 +367,7 @@ Smile \\~\\
     \item llvm-config compiled for the host must be installed to the target's
     sysroot.
     \item Some output depends on its location and some other is contained in the
-    binary \Sey
+    binary %\Sey
   \end{itemize}
   \item \textbf{Solution:} do a full installation of LLVM for the host using the
   same\footnote{Tools are not built for the target} configuration options as for
@@ -532,10 +535,14 @@ Total & Skip & Pass & Fail & Crash \\
 \end{itemize}
 \end{frame}
 
+%-------------------------------------------------------
+\section{Current State}
+
 \begin{frame}
-\frametitle{Project Timeline}
+\frametitle{LLVM/Clang for Buildroot - Current State}
 \begin{figure}
 \includegraphics[width=1.\linewidth]{img/timeline4.png}
+\caption{Project development}
 \end{figure}
 \end{frame}
 
