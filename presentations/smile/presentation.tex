@@ -102,7 +102,7 @@ Smile \\~\\
 \end{itemize}
 \end{frame}
 %-------------------------------------------------------
-\section{LLVM}
+\section{LLVM/Clang}
 
 \begin{frame}
 \frametitle{LLVM}
@@ -158,10 +158,6 @@ Smile \\~\\
       }
 \end{lstlisting}
 \end{frame}
-
-
-%-------------------------------------------------------
-\section{Clang}
 
 \begin{frame}
 \frametitle{Clang}
@@ -249,7 +245,6 @@ Smile \\~\\
 \fi
 %-------------------------------------------------------
 \section{LLVM/Clang integration to Buildroot}
-
 
 \begin{frame}
 \frametitle{LLVM/Clang integration to Buildroot - Why?}
@@ -413,6 +408,8 @@ Smile \\~\\
 \end{frame}
 \fi
 
+%-------------------------------------------------------
+\section{OpenCL}
 \begin{frame}
 \frametitle{OpenCL}
 \begin{itemize}
@@ -536,13 +533,20 @@ Total & Skip & Pass & Fail & Crash \\
 \end{frame}
 
 \begin{frame}
+\frametitle{Project Timeline}
+\begin{figure}
+\includegraphics[width=1.\linewidth]{img/timeline4.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
 \frametitle{LLVM/Clang for Buildroot - Current State}
 \begin{itemize}
   \item Available in Buildroot 2018.05:
   \begin{itemize}
-    \item LLVM package (version 6.0.0)\checkmark
+    \item LLVM package (version 5.0.2)\checkmark
     \item LLVM support for Mesa 3D \checkmark
-    \item Clang package (version 6.0.0)\checkmark
+    \item Clang package (version 5.0.2)\checkmark
   \end{itemize}
   \item Patchs sent to the mailing list:
   \begin{itemize}
@@ -553,9 +557,13 @@ Total & Skip & Pass & Fail & Crash \\
   \begin{itemize}
     \item Add OpenCL support for already existing packages
     \item Add new packages that depend on LLVM
+    \item \textbf{Create an Clang-based toolchain}
   \end{itemize}
 \end{itemize}
 \end{frame}
+
+%-------------------------------------------------------
+\section{Conclusions and acquired competencies}
 
 \begin{frame}
 \frametitle{Conclusions and acquired competencies}
