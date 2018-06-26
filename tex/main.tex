@@ -10,6 +10,7 @@
 \usepackage{textcomp}
 \usepackage{abstract}
 \usepackage{parcolumns}
+\usepackage[hidelinks]{hyperref}
 \renewcommand{\abstractnamefont}{\normalfont\Large\bfseries}
 \graphicspath{{img/}}
 
@@ -116,7 +117,26 @@
 
 \newpage
 \section{Introduction}
+
 \subsection{Organization}
+This document is organized in a way that the technologies involved in the
+project are first introduced in order to provide the reader with the necessary
+information to understand the main objectives of it and interpret how software
+components interact with each other.\\\\
+Section \ref{Buildroot} discusses the most
+important aspects of Buildroot in order to provide some background information.
+Section \ref{LLVM} introduces the LLVM project from the user's point of view and
+then digs into its internal aspects to show how its unique design presents
+several advantages over GCC. As the first goal of this project is providing
+LLVM support for OpenGL, Section \ref{Linux graphics stack} discusses the
+Linux Graphics Stack to see which is the role of LLVM in this complex system.
+Section \ref{LLVM/Clang integration to Buildroot} contains the development of
+all the project itself, doing emphasis in all the problems encountered along
+the way. As this work was done in several iterations, this section shows the
+state of progress at different dates, which gives a clear view of how the
+project evolved and which functionalities were added on each iteration. Finally,
+Section \ref{Conclusions and future work} discusses possible future work and
+concludes the document.
 
 \newpage
 \section{Smile}
@@ -144,11 +164,11 @@ E-commerce and Recruiting, among others.
 In February 2016, Smile launched the Open Source School (OSS) in partnership
 with EPSI, an engineering school. This is the first higher education school
 dedicated to open source technologies which offers a 3-year program (BAC+5)
-to train professionals who will design, build and manage large open source
+to train professionals to design, build and manage large open source
 projects.
 
 \newpage
-\section{Buildroot}
+\section{Buildroot} \label{Buildroot}
 
 Buildroot is an open source build system that allows to build from source some
 or all of the following components of an Embedded Linux System:
@@ -237,7 +257,7 @@ project maintainers consider that the patch is ready to be applied, it is
 commited to its corresponding branch.
 
 \newpage
-\section{LLVM}
+\section{LLVM} \label{LLVM}
 
 This section presents LLVM, an open source project that provides a set of
 low level toolchain components (assemblers, compilers, debuggers, etc.) which
@@ -499,7 +519,7 @@ corresponds to the following system:
 \end{itemize}
 
 \newpage
-\section{Linux graphics stack}
+\section{Linux graphics stack} \label{Linux graphics stack}
 
 This section intends to give an introduction to the Linux graphics stack in order
 to explain the role of LLVM inside this complex system comprised of many open
@@ -578,23 +598,22 @@ much faster alternative to the classic Mesa's single-threaded softpipe.\\\\
 
 
 \newpage
-\section{LLVM/Clang integration to Buildroot}
+\section{LLVM/Clang integration to Buildroot} \label{LLVM/Clang integration to Buildroot}
 
-\section*{Summary}
-The main purpose of this internship is to integrate LLVM/Clang packages to Buildroot.
-These packages will activate new functionalities such as enabling llvmpipe software
-rasterizer (useful for systems which do not have a dedicated GPU) and providing OpenCL
-support for existing packages already present in Buildroot . Once LLVM is present
-on the system, new packages that make use of this infrastructure can be added to
-Buildroot. When this part of the project is achieved, the next step is to create
-a cross-toolchain based on Clang to compile Buildroot componentes supported by
-this front-end. \footnote{Mainline Linux kernel and glibc do not yet compile with
-Clang}
+The main purpose of this internship is to integrate LLVM/Clang packages to
+Buildroot. These packages will activate new functionalities such as enabling
+Mesa 3D's llvmpipe software rasterizer (useful for systems which do not have a
+dedicated GPU) and providing OpenCL support for packages which are already
+available in Buildroot. Once LLVM is present on the system, new packages
+that rely on this infrastructure can be added. When this part of the project is
+achieved, a next step would be creating a cross-compilation toolchain based on
+Clang to compile Buildroot components supported by this front-end.\footnote{Mainline
+Linux kernel and glibc do not yet compile with Clang}
 
 \section*{State of the project - 2 March 2018}
 After some research concerning the state of the art of the LLVM project, the objectives
 of the internship were presented and discussed at the Buildroot Developers Meeting
-in Brussels \footnote{https://elinux.org/Buildroot:DeveloperDaysFOSDEM2018}, obtaining
+in Brussels\footnote{https://elinux.org/Buildroot:DeveloperDaysFOSDEM2018}, obtaining
 the following conclusions:
 \begin{itemize}
   \item LLVM itself is very useful for other packages (Mesa 3D's llvmpipe or OpenJDK's
@@ -623,7 +642,7 @@ that only the necessary target backends are built.
 
 \subsection*{Considerations}
 
-\subsubsection*{LLVM makefile}
+\subsubsection*{LLVM Makefile}
 In order to cross-compile LLVM for the target, llvm-config and llvm-tblgen tools
 must first be compiled for the host. In the first patch series, a minimal version of
 host-llvm containing only these two tools is provided. To do this, most of the
@@ -651,7 +670,7 @@ libraries called libLLVM.so, as {\fontfamily{qcr}\selectfont
 -DLLVM\_BUILD\_LLVM\_DYLIB} is set to ON.\\\\
 One important step in the process is the fact of replacing llvm-config in STAGING\_DIR
 by its host variant. This is because llvm-config compiled for the target cannot
-run on the host, and it is needed to build applications that use LLVM libraries,
+run on the host, and this tool is needed to build applications that use LLVM libraries,
 as it prints the compiler flags, linker flags and object libraries needed to link
 against LLVM.
 
@@ -1712,6 +1731,8 @@ both LLVM and Clang packages:
 http://lists.busybox.net/pipermail/buildroot/2018-June/222697.html
 
 \newpage
-\section{Future work}
+\section{Conclusions and future work} \label{Conclusions and future work}
+
+
 
 \end{document}
