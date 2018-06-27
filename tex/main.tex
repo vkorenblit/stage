@@ -117,6 +117,18 @@
 
 \newpage
 \section{Introduction}
+Embedded systems are present in many kinds of devices, ranging from aircraft
+systems to consumer electronics. Thanks to the technological advances, some
+recent embedded sytems outperform desktop PCs of several years ago, allowing
+them to run a Linux system. However, while regular Linux distributions are
+generic and well suited for desktop systems, embedded systems have different
+kinds of hardware/software constraints which need to be satisfied, which normaly
+involves applying modifications to the operating system. Because of this, there
+exist build sytems like Buildroot that can generate a fully customized embedded
+Linux system optimized for a particular target hardware.\\\\
+Two aspects that can be customized using Buildroot are the packages that will be
+installed on the target system and the cross-compilation toolchain that is used
+to build these packages. LLVM is a compiler infrastructure can be play two roles
 
 \subsection{Organization}
 This document is organized in a way that the technologies involved in the
@@ -675,7 +687,7 @@ as it prints the compiler flags, linker flags and object libraries needed to lin
 against LLVM.
 
 \subsubsection*{Mesa 3D}
-Currently, Mesa 3D is linking against LLVM libraries statically. When setting the
+Currently, Mesa 3D is statically linking against LLVM libraries. When setting the
 option {\fontfamily{qcr}\selectfont MESA3D\_CONF\_OPTS += --enable-llvm-shared-libs},
 the build fails because it cannot find LLVM libraries. Apparently, the problem is
 that llvm-config placed in STAGING\_DIR is not working properly, as it provides
@@ -697,7 +709,7 @@ fails. Mesa's configure script clearly states that llvm-config may not give
 the correct output when LLVM is built as a single shared library.
 
 \subsection*{Achievements}
-At this date, llvmpipe was successfully tested on the following systems:
+At this date, Mesa 3D's llvmpipe was successfully tested on the following systems:
 \begin{itemize}
   \item x86\_64
   \item ARM
@@ -714,9 +726,10 @@ llvmpipe with respect to softpipe.
   \caption{OpenGL specs}
   \label{fig:llvmpipe-glspecs}
 \end{figure}
-Some benchmarks were run to compare llvmpipe against the classic softpipe software
-rasterizer and the AMD Radeon HD6480. Table \ref{tab:glmark2_x86} shows how much
-the LLVM code optimizer improves the performance for rendering:
+Some benchmarks were run in order to compare llvmpipe against Mesa 3D's classic
+softpipe software rasterizer and also against the AMD Radeon HD6480.
+Table \ref{tab:glmark2_x86} shows how much the LLVM code optimizer improves
+rendering performance:
 \begin{table}[h!]
   \begin{center}
     \caption{Results of GLMark2 and GLMark2-es2 benchmarks on x86\_64}
@@ -833,9 +846,9 @@ Possible causes:
     \end{itemize}
   \item Prepare next patch series:
   \begin{itemize}
-    \item Provide an option to install full host-llvm.
+    \item Provide an option to do a full installation of host-llvm.
     \item Activate OpenCL.
-    \item Activate Clang (needs full host-llvm installed).
+    \item Add Clang package (needs full host-llvm installed).
     \item Add support for more targets.
   \end{itemize}
 \end{itemize}
@@ -847,12 +860,12 @@ Possible causes:
 After having investigated why Mesa 3D was not able to link dynamically against
 libLLVM.so, it was found that the bug in llvm-config presented in section \textbf{Mesa 3D}
 occurs when the option LLVM\_LINK\_LLVM\_DYLIB is not enabled. The purpose of this
-option is to generate a single shared library (libLLVM.so) and link LLVM tools
-dynamically with it.\\\\
+option is to generate a single shared library (libLLVM.so) and dynamically link
+LLVM tools with it.\\\\
 A priori, as llvm-tblgen and llvm-config are the only necessary tools for the host
 (llvm-tblgen to cross-compile LLVM for the target and llvm-config to provide linking
 options to packages that link against LLVM libraries), it was decided to do a
-minimal host-llvm installation. However, to get the correct output from llvm-config
+minimal host-llvm installation. However, to get the correct output from llvm-config,
 it must be linked with libLLVM.so (host-variant), so this library must also be built.
 Because of this, the first approach changed and the first patch of the series
 (package/llvm: new host package) will provide a full installation of LLVM (tools
@@ -1167,7 +1180,7 @@ Most of the tests that failed can be classified in the following categories:
   \item Vector load
 \end{itemize}
 Some failures are due to missing hardware support for particular operations, so
-it would be useful to run Piglit with a more recent GPU using radeonsi Gallium
+it would be useful to run Piglit with a more recent GPU using RadeonSI Gallium
 driver in order to compare the results. It would also be interesting to test
 with both GPUs which packages can benefit from OpenCL support using Clover.
 \subsection*{PATCH v4}
@@ -1208,7 +1221,7 @@ received:
   Buildroot, so they are not necessary in llvm.mk, such as CMAKE\_INSTALL\_PREFIX
   and -G "Unix Makefiles".
   \item Manage LLVM\_TARGETS\_TO\_BUILD in a more extensible way to add more backends.
-  \item Support for ARM and Aarch64 architectures should go directly in the
+  \item Support for ARM and AArch64 architectures should go directly in the
   first patch of the series.
   \item Clang binaries must be removed from the target, as there are no development
   files (headers) and other build tools.
@@ -1733,6 +1746,34 @@ http://lists.busybox.net/pipermail/buildroot/2018-June/222697.html
 \newpage
 \section{Conclusions and future work} \label{Conclusions and future work}
 
+This document describes the whole process of integrating a new package to
+Buildroot. ,
+
+
+\iffalse
+This paper describes the process of designing and implementing a custom 32-bit
+ RISC CPU along with writing a custom LLVM compiler backend. Although compiler
+research is popular in computer science, the research generally is focused on
+the front end or optimization passes. Even when there is research focused on
+the backend of compilers, it typically is focused on the GCC project and not LLVM.
+The custom RISC CPU was designed in Verilog and operates as a standard 4-stage
+pipeline. The goal was to create a simple enough RISC CPU that could be easily
+described for a compiler, while still retaining enough complexity to allow for
+sophisticated program execution. Although the custom CPU was fairly complete,
+there were still design choices that made the implementation of LLVM backend
+more complicated than needed, such as choosing a hardware data stack design
+instead of a memory based stack. The custom compiler backend was written using
+the LLVM compiler infrastructure project. Although most CPU architectures are
+supported by the code generator in GCC, there are few that are supported by LLVM.
+The custom compiler backend was written using LLVM for its modern code design and
+to explore if there is a good reason for its lack of popularity in the embedded
+CPU community. Although implementing the custom LLVM backend to its current state
+was a difficult process, there does not seem to be a valid reason for its lack of
+popularity as a compiler. As more communities experiment with backends in LLVM
+and discover how modern and organized the project is, its popularity should
+rapidly increase, not only for the betterment of the embedded CPU community,
+but for everyone that relies on using a compiler.
+\fi
 
 
 \end{document}
