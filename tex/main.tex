@@ -121,7 +121,7 @@ Embedded systems are present in many kinds of devices, ranging from aircraft
 systems to consumer electronics. Thanks to the technological advances, some
 recent embedded sytems outperform desktop PCs of several years ago, allowing
 them to run a Linux system. However, while regular Linux distributions are
-generic and well suited for desktop systems, embedded systems have different
+generic and well suited for desktop systems, embedded systems present different
 kinds of hardware/software constraints which need to be satisfied, which normaly
 involves applying modifications to the operating system. Because of this, there
 exist build sytems like Buildroot that can generate a fully customized embedded
@@ -1755,33 +1755,23 @@ http://lists.busybox.net/pipermail/buildroot/2018-June/222697.html
 \section{Conclusions and future work} \label{Conclusions and future work}
 
 This document describes the whole process of integrating a new package to
-Buildroot. ,
-
-
-\iffalse
-This paper describes the process of designing and implementing a custom 32-bit
- RISC CPU along with writing a custom LLVM compiler backend. Although compiler
-research is popular in computer science, the research generally is focused on
-the front end or optimization passes. Even when there is research focused on
-the backend of compilers, it typically is focused on the GCC project and not LLVM.
-The custom RISC CPU was designed in Verilog and operates as a standard 4-stage
-pipeline. The goal was to create a simple enough RISC CPU that could be easily
-described for a compiler, while still retaining enough complexity to allow for
-sophisticated program execution. Although the custom CPU was fairly complete,
-there were still design choices that made the implementation of LLVM backend
-more complicated than needed, such as choosing a hardware data stack design
-instead of a memory based stack. The custom compiler backend was written using
-the LLVM compiler infrastructure project. Although most CPU architectures are
-supported by the code generator in GCC, there are few that are supported by LLVM.
-The custom compiler backend was written using LLVM for its modern code design and
-to explore if there is a good reason for its lack of popularity in the embedded
-CPU community. Although implementing the custom LLVM backend to its current state
-was a difficult process, there does not seem to be a valid reason for its lack of
-popularity as a compiler. As more communities experiment with backends in LLVM
-and discover how modern and organized the project is, its popularity should
-rapidly increase, not only for the betterment of the embedded CPU community,
-but for everyone that relies on using a compiler.
-\fi
-
-
+Buildroot, detailing every necessary step to meet the requirements which allow
+the package to be merged into the project. This involves finding all the
+correct dependencies (toolchain properties or packages) and writing a Makefile
+adjusting the corresponding build options. Thanks to the tests and reviews done
+by the community, it was possible to advance rapidly and send improved patch
+series as soon as possible.\\\\
+Currently, LLVM 5.0.2, Clang 5.0.2 and LLVM support for Mesa 3D are available
+in Buildroot 2018.05. The update of these packages to version 6.0.0 has been
+done by another contributor and will be available in the next stable release.
+The activity on the mailing list shows an interest of Buildroot users and
+contributors in LLVM. Such is the case of a contributor who is creating the
+Chromium browser package, which relies on Clang to be built. This contribution
+also adds lld, the system linker from the LLVM project which provides an
+alternative to GNU ld and claims to be much faster than the latter one.\\\\
+Regarding future work, the most immediate goal is to get OpenCL support for AMD
+GPUs merged into Buildroot. The next step will be to add more packages that rely
+on LLVM/Clang and OpenCL. On the other hand, the fact of creating a toolchain
+based on LLVM/Clang is still being discussed on the mailing and is a topic that
+requires an agreement from the core developers of the project.
 \end{document}
