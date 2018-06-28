@@ -128,7 +128,15 @@ exist build sytems like Buildroot that can generate a fully customized embedded
 Linux system optimized for a particular target hardware.\\\\
 Two aspects that can be customized using Buildroot are the packages that will be
 installed on the target system and the cross-compilation toolchain that is used
-to build these packages. LLVM is a compiler infrastructure can be play two roles
+to build them. LLVM as a compiler infrastructure can play both roles in Buildroot:
+one one hand, it can be seen as a target package which provides functionalitites
+such as code optimization and Just In Time compilation to other packages, whereas
+on the other hand it opens the possibility of creating a cross-compilation
+toolchain that could be an alternative to Buildroot's default one, which is
+based on GNU tools.\\\\
+This project is mainly focused on LLVM as a target package. Nevertheless, it also
+discusses some relevant aspects which need to be considered when building an
+LLVM/Clang-based cross-compilation toolchain.
 
 \subsection{Organization}
 This document is organized in a way that the technologies involved in the
