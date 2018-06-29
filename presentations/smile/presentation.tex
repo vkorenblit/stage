@@ -118,7 +118,7 @@ ESIEE Paris \\~\\
   \item Well structured and documented
   \item Some existing backends:
   \begin{itemize}
-    \item \textbf{ARM}, ARM64, Hexagon, Mips, Mipsel, NVIDIA PTX 32/64,
+    \item \textbf{ARM}, \textbf{ARM64}, Hexagon, Mips, Mipsel, NVIDIA PTX 32/64,
     PowerPC 32/64, \textbf{AMDGPU}, Sparc, Thumb, x86, \textbf{x86-64}, XCore
   \end{itemize}
 \end{itemize}
@@ -548,7 +548,7 @@ Total & Skip & Pass & Fail & Crash \\
 \begin{frame}
 \frametitle{LLVM/Clang for Buildroot - Current State}
 \begin{figure}
-\includegraphics[width=1.\linewidth]{img/timeline4.png}
+\includegraphics[width=1.\linewidth]{img/timeline.png}
 \caption{Project development}
 \end{figure}
 \end{frame}
@@ -567,9 +567,10 @@ Total & Skip & Pass & Fail & Crash \\
     \item libclc package
     \item OpenCL support for AMD GPUs
   \end{itemize}
-  \item Work done by other contributors on top of LLVM
+  \item Work done by other contributors
   \begin{itemize}
     \item RadeonSI Gallium Driver for Mesa 3D
+    \item LLVM/CLang version bump to 6.0.0
     \item Chromium browser (work in progress)
   \end{itemize}
   \item TODO

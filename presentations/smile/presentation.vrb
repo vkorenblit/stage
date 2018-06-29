@@ -1,0 +1,32 @@
+\frametitle{LLVM - Internal aspects}
+\begin{itemize}
+  \item Intermediate Representation (IR)
+  \begin{itemize}
+    \item Mostly architecture-independent instruction set (RISC)
+    \item Strongly typed
+    \item Unlimited number of virtual registers in SSA
+  \end{itemize}
+  \item IR Code example:
+\end{itemize}
+
+\begin{columns}[c]
+\column{.5\textwidth}
+\begin{lstlisting}
+      define i32 @main() #0 {
+      entry:
+        %retval = alloca i32, align 4
+        %c = alloca i32, align 4
+        store i32 0, i32* %retval, align 4
+        %0 = load i32, i32* @a, align 4
+        %1 = load i32, i32* @b, align 4
+        %add = add nsw i32 %0, %1
+        store i32 %add, i32* %c, align 4
+        ret i32 0
+      }
+\end{lstlisting}
+\column{.5\textwidth}
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{img/ll.png}
+\end{figure}
+\end{columns}
+
