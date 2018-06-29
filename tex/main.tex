@@ -122,7 +122,7 @@ systems to consumer electronics. Thanks to the technological advances, some
 recent embedded sytems outperform desktop PCs of several years ago, allowing
 them to run a Linux system. However, while regular Linux distributions are
 generic and well suited for desktop systems, embedded systems present different
-kinds of hardware/software constraints which need to be satisfied, which normaly
+kinds of hardware/software constraints that need to be satisfied, which normaly
 involves applying modifications to the operating system. Because of this, there
 exist build sytems like Buildroot that can generate a fully customized embedded
 Linux system optimized for a particular target hardware.\\\\
@@ -297,7 +297,7 @@ traditional compiler projects (such as GCC) because it is not just a
 collection of individual programs, but rather a collection of libraries that
 can be used to build compilers, optimizers, JIT code generators and other
 compiler-related programs. LLVM is an umbrella project, which means that it has
-several subprojects, such as LLVM Core (maing libraries), Clang, lldb, compiler-rt,
+several subprojects, such as LLVM Core (main libraries), Clang, lldb, compiler-rt,
 libclc, and lld among others.\\\\
 From the start, LLVM was conceived as an API which provides a compiler
 infrastructure written in C++, focusing on compile time and performance
@@ -306,7 +306,7 @@ complete documentation, it is easy to integrate LLVM components into third-party
 projects, and this is in fact the key of the success achieved by this project.\\\\
 Nowadays, LLVM is being used as a base platform to enable the implementation of
 statically and runtime compiled programming languages, such as C/C++, Java,
-Kotlin, Rust and Swift. This is possible because of LLVM's internal structure
+Kotlin, Rust and Swift. This is possible because LLVM's internal structure
 implements many of the common structures and patterns found in most programming
 languages, allowing developers to focus only on the particular aspects.\\\\
 Many big companies are using LLVM technology in their products, being Apple and
@@ -594,9 +594,9 @@ between OpenGL and the kernel-space graphics drivers and exposes the OpenGL API
 as libGL.so. Mesa takes advantage of the  DRI/DRM infrastructure to access the
 hardware directly and output its graphics to a window allocated by the X server,
 which is done by GLX, an extension that binds OpenGL to the X Window System.
-\\\\ Mesa provides drivers for multiple drivers for AMD, Nvidia and Intel GPUs
-and also provides some software implementations of 3D rendering, useful for
-platforms that do not have a dedicated GPU. Drivers are divided in two groups:
+\\\\ Mesa provides multiple drivers for AMD, Nvidia and Intel GPUs and also
+provides some software implementations of 3D rendering, useful for
+platforms that do not have a dedicated GPU. Mesa drivers are divided in two groups:
 Messa Classics and Gallium 3D. The second group is a set of utilities and
 common code that is shared by multiple drivers, such as nouveau (Nvidia),
 RadeonSI (AMD GCN) and softpipe (CPU).\\\\
@@ -1765,10 +1765,11 @@ Currently, LLVM 5.0.2, Clang 5.0.2 and LLVM support for Mesa 3D are available
 in Buildroot 2018.05. The update of these packages to version 6.0.0 has been
 done by another contributor and will be available in the next stable release.
 The activity on the mailing list shows an interest of Buildroot users and
-contributors in LLVM. Such is the case of a contributor who is creating the
-Chromium browser package, which relies on Clang to be built. This contribution
-also adds lld, the system linker from the LLVM project which provides an
-alternative to GNU ld and claims to be much faster than the latter one.\\\\
+contributors in LLVM. Such is the case of a contributor who is creating a
+package Chromium browser, which relies on Clang to be built. This contribution
+also adds {\fontfamily{qcr}\selectfont lld}, the system linker from the LLVM
+project that provides an alternative to GNU {\fontfamily{qcr}\selectfont ld}
+and claims to be much faster than the latter one.\\\\
 Regarding future work, the most immediate goal is to get OpenCL support for AMD
 GPUs merged into Buildroot. The next step will be to add more packages that rely
 on LLVM/Clang and OpenCL. On the other hand, the fact of creating a toolchain
