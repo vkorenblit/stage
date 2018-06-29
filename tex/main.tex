@@ -1068,8 +1068,8 @@ There is a particular problem with libclc: when OpenCL programs call clBuildProg
 function\footnote{https://www.khronos.org/registry/OpenCL/sdk/2.0/docs/man/xhtml/clBuildProgram.html}
 in order to compile and link a program (generally an OpenCL kernel) from source
 during execution, they require clc headers to be located in /usr/include/clc.
-This is not possible because Buildroot does not copy /usr/include from STAGING\_DIR
-to the target as the embedded platform is not intended to store development files,
+This is not possible because Buildroot removes /usr/include from the target as
+the embedded platform is not intended to store development files,
 mainly because there is no compiler installed on it. But since OpenCL works with
 libLLVM to do code generation, a place to store clc headers must be found.\\\\
 The file that adds the path to libclc headers is invocation.cpp, located at
@@ -1611,12 +1611,12 @@ correctly. Many tests failed with the following error:
 further compilation may fail!
 \end{lstlisting}
 The test suite was aborted when running {\fontfamily{qcr}\selectfont reduce\_multipleworkgroups\_ints\_noscratch}
-because of an invalid index:
+because of an invalid index:\\\\
 \begin{lstlisting}[language=sh,caption={},captionpos=b,keywords={}]
 terminate called after throwing an instance of 'std::out_of_range'
 \end{lstlisting}
 The final results:
-\begin{lstlisting}[language=sh,caption={EasyCL tests},captionpos=b,keywords={OK}]
+\begin{lstlisting}[language=sh,caption={EasyCL tests on VC4CL},captionpos=b,keywords={OK}]
 [  <@\textcolor{red}{FAILED}@>  ] testscalars.test1 (75455 ms)
 [       OK ] testintarray.main (68581 ms)
 [       OK ] testfloatwrapper.main (71079 ms)
@@ -1638,6 +1638,78 @@ The final results:
 [  <@\textcolor{red}{FAILED}@>  ] testlocal.localreduce (193205 ms)
 [  <@\textcolor{red}{FAILED}@>  ] testlocal.reduceviascratch_multipleworkgroups (192997 ms)
 [  <@\textcolor{red}{FAILED}@>  ] testlocal.reduceviascratch_multipleworkgroups_ints (194560 ms)
+\end{lstlisting}
+It is interesting to see the results of the same test suite executed on
+AMD Radeon Dual Graphics GPU (integrated HD6480G + dedicated HD7450M) using
+Clover platform. First of all, the program finishes correctly, it is not aborted
+with 'std::out\_of\_range' exception as with VC4CL and the results show that most
+of the tests pass:
+\begin{lstlisting}[language=sh,caption={EasyCL tests on Clover (AMD SUMO + AMD CAICOS)},captionpos=b,keywords={OK}]
+[  <@\textcolor{red}{FAILED}@>  ] testscalars.test1 (1794 ms)
+[       OK ] testintarray.main (1582 ms)
+[       OK ] testfloatwrapper.main (1575 ms)
+[       OK ] testfloatwrapper.singlecopytodevice (1 ms)
+[       OK ] testfloatwrapper.doublecopytodevice (1 ms)
+[       OK ] testqueues.main (1561 ms)
+[       OK ] testqueues.defaultqueue (1581 ms)
+[       OK ] testclarray.main (1564 ms)
+[       OK ] testfloatwrapperconst.main (1568 ms)
+[       OK ] testintwrapper.main (1563 ms)
+[       OK ] test_scenario_te42kyfo.main (1518 ms)
+[       OK ] testfloatarray.main (1507 ms)
+[       OK ] testeasycl.main (1572 ms)
+[       OK ] testeasycl.power2helper (0 ms)
+[       OK ] testinout.main (1478 ms)
+[       OK ] testlocal.uselocal (1742 ms)
+[       OK ] testlocal.notUselocal (1649 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.globalreduce (3833 ms)
+[       OK ] testlocal.localreduce (2210 ms)
+[       OK ] testlocal.reduceviascratch_multipleworkgroups (1708 ms)
+[       OK ] testlocal.reduceviascratch_multipleworkgroups_ints (1793 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testlocal.reduce_multipleworkgroups_ints_noscratch (1714 ms)
+[       OK ] testdefines.simple (1505 ms)
+[       OK ] testbuildlog.main (1390 ms)
+[       OK ] testnewinstantiations.createForFirstGpu (1612 ms)
+[       OK ] testnewinstantiations.createForIndexedGpu (1590 ms)
+
+
+[       OK ] testnewinstantiations.createForIndexedDevice (3212 ms)
+[       OK ] testnewinstantiations.createForPlatformDeviceIndexes (1590 ms)
+[       OK ] testnewinstantiations.createForFirstGpuOtherwiseCpu (1601 ms)
+[  <@\textcolor{red}{FAILED}@>  ] testucharwrapper.main (1593 ms)
+[       OK ] testkernelstore.main (1530 ms)
+[       OK ] testkernelstore.cl_deletes (6115 ms)
+[       OK ] testdirtywrapper.main (1610 ms)
+[       OK ] testDeviceInfo.basic (0 ms)
+[       OK ] testDeviceInfo.gpus (0 ms)
+[       OK ] testLuaTemplater.basicsubstitution1 (1 ms)
+[       OK ] testLuaTemplater.basicsubstitution1b (0 ms)
+[       OK ] testLuaTemplater.basicsubstitution (1 ms)
+[       OK ] testLuaTemplater.startofsection (1 ms)
+[       OK ] testLuaTemplater.endofsection (0 ms)
+[       OK ] testLuaTemplater.loop (1 ms)
+[       OK ] testLuaTemplater.nestedloop (1 ms)
+[       OK ] testLuaTemplater.foreachloop (1 ms)
+[       OK ] testLuaTemplater.codesection (0 ms)
+[       OK ] testLuaTemplater.codingerror (1 ms)
+[       OK ] testLuaTemplater.include (1 ms)
+[       OK ] testTemplatedKernel.basic (3055 ms)
+[       OK ] testTemplatedKernel.withbuilderror (1585 ms)
+[       OK ] testTemplatedKernel.withtemplateerror (2 ms)
+[       OK ] testTemplatedKernel.withbuilderrorintargs (1321 ms)
+[       OK ] testTemplatedKernel.withargserror (1544 ms)
+[       OK ] testTemplatedKernel.basic2 (15166 ms)
+[       OK ] testTemplatedKernel.foreach (1513 ms)
+[       OK ] testTemplatedKernel.forrange (1531 ms)
+[       OK ] testTemplatedKernel.forrange2 (1514 ms)
+[       OK ] testStructs.main (1692 ms)
+[       OK ] testprofiling.basic (6476 ms)
+[       OK ] testprofiling.noprofiling (1503 ms)
+[       OK ] testcopybuffer.main (1 ms)
+[       OK ] testcopybuffer.withoffset (2 ms)
+[       OK ] testcopybuffer.throwsifnotondevice (1 ms)
+[       OK ] teststatefultimer.basic (1942 ms)
+[       OK ] teststatefultimer.notiming (1872 ms)
 \end{lstlisting}
 
 \newpage
