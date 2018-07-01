@@ -26,6 +26,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{dirtytalk}
+\usepackage[nodayofweek]{datetime}
 
 \graphicspath{{img/}}
 
@@ -41,8 +42,10 @@ ESIEE Paris \\~\\
 \medskip
 \textit{valentin.korenblit@smile.fr}
 }
+\newdate{date}{03}{07}{2018}
+%\date{\displaydate{date}}
 
-\date{\today}
+\date{\displaydate{date}}
 
 \begin{document}
 
